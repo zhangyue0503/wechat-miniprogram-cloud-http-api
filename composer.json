@@ -1,0 +1,26 @@
+{
+  "name": "zyblog/wx-mp-cloud-http-api",
+  "description": "wechat-miniprogram-cloud-http-api",
+  "keywords": ["yii2dwz", "dwz.js", "dwz kindeditor", "kindeditor"],
+  "homepage": "https://github.com/zhangyue0503/wechat-miniprogram-cloud-http-api",
+  "type": "library",
+  "minimum-stability" : "stable",
+  "authors": [
+    {
+      "name": "zhangyue",
+      "email": "423257356@qq.com"
+    }
+  ],
+  "support": {
+    "issues": "https://github.com/zhangyue0503/wechat-miniprogram-cloud-http-api/issues",
+    "source": "https://github.com/zhangyue0503/wechat-miniprogram-cloud-http-api"
+  },
+  "require": {
+    "guzzlehttp/guzzle": "^6.3"
+  },
+  "autoload": {
+    "psr-4": {
+      "zyblog\\wxMpCloudHttpApi\\": "src/Cloud"
+    }
+  }
+}
