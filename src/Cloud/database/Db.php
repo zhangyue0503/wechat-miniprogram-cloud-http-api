@@ -26,6 +26,11 @@ class Db
         $this->accessToken = $accessToken;
     }
 
+    /**
+     * 初始化查询语句
+     * @param $collectionName
+     * @return $this
+     */
     public function collectionQuery($collectionName)
     {
         $this->collectionName = $collectionName;
@@ -33,24 +38,37 @@ class Db
         return $this;
     }
 
+    /**
+     * 设置文档查询
+     * @param $id 文档id
+     * @return $this
+     */
     protected function setDocQuery($id)
     {
         $this->queryString .= '.doc("' . $id . '")';
         return $this;
     }
 
+    /**
+     * 设置get查询
+     * @return $this
+     */
     protected function getQuery()
     {
         $this->queryString .= '.get()';
         return $this;
     }
 
+    /**
+     * 返回拼装好的查询语句
+     * @return mixed
+     */
     public function query()
     {
         return $this->queryString;
     }
 
-    protected function where($where = [], $orWhere = [])
+    public function where($where = [], $orWhere = [])
     {
         $condition = new DbCondition();
         if (count($where) > 0) {
@@ -67,6 +85,32 @@ class Db
         return $this;
     }
 
+    protected function field($fields = [])
+    {
+        if (count($fields) > 0) {
+            $fieldString = [];
+            foreach ($fields as $field) {
+                if (is_array($field) && count($field) == 2) {
+                    list($k, $v) = $field;
+                    if (is_array($v) && in_array(count($v), [1, 2])) {
+                        $slice = implode(',', array_map(function ($n) {
+                            return (int)$n;
+                        }, $v));
+                    } else {
+                        $slice = (int)$v;
+                    }
+                    $fieldString[] = $k . ':_.project.slice(' . $slice . ')';
+                } else {
+                    $fieldString[] = (string)$field . ': true';
+                }
+            }
+            if (count($fieldString) > 0) {
+                $this->queryString .= '.field({' . implode(',', $fieldString) . '})';
+            }
+        }
+        return $this;
+    }
+
     protected function limit($limit)
     {
         if (is_array($limit) && count($limit) == 2) {
@@ -78,6 +122,20 @@ class Db
             }
         }
 
+        return $this;
+    }
+
+    protected function orderBy($orderBys = [])
+    {
+        if (is_array($orderBys) && count($orderBys) > 0) {
+            foreach ($orderBys as $o) {
+                if (is_array($o) && count($o) == 2) {
+                    list($fieldName, $order) = explode(' ', $o);
+                    if (!$order) $order = 'asc';
+                    $this->queryString .= '.orderBy("' . $fieldName . '", "' . $order . '")';
+                }
+            }
+        }
         return $this;
     }
 

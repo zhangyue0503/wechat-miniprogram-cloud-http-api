@@ -14,6 +14,8 @@ trait Config
         'databaseQuery'  => 'https://api.weixin.qq.com/tcb/databasequery',
         'databaseAdd'    => 'https://api.weixin.qq.com/tcb/databaseadd',
         'databaseUpdate' => 'https://api.weixin.qq.com/tcb/databaseupdate',
+        'databaseDelete' => 'https://api.weixin.qq.com/tcb/databasedelete',
+        'databaseCount'  => 'https://api.weixin.qq.com/tcb/databasecount',
     ];
 
 }

@@ -5,7 +5,7 @@ namespace zyblog\wxMpCloudHttpApi\callFunction;
 use GuzzleHttp\Client;
 use zyblog\wxMpCloudHttpApi\Config;
 
-class CallFunction
+class Cf
 {
     use Config;
 

@@ -5,6 +5,11 @@ namespace zyblog\wxMpCloudHttpApi\database;
 
 use zyblog\wxMpCloudHttpApi\Config;
 
+/**
+ * 集合操作
+ * Class DbCollection
+ * @package zyblog\wxMpCloudHttpApi\database
+ */
 class DbCollection extends Db
 {
     /**
@@ -12,7 +17,7 @@ class DbCollection extends Db
      * @param $name 集合名称
      * @return array 参考：https://developers.weixin.qq.com/miniprogram/dev/wxcloud/reference-http-api/database/databaseCollectionAdd.html
      */
-    public function createConnections($name)
+    public function createCollections($name)
     {
         if (!$name) {
             return $this->error('-100001', '参数错误：集合名称不能为空');
@@ -27,7 +32,7 @@ class DbCollection extends Db
      * @param $name 集合名称
      * @return array 参考：https://developers.weixin.qq.com/miniprogram/dev/wxcloud/reference-http-api/database/databaseCollectionDelete.html
      */
-    public function deleteConnections($name)
+    public function deleteCollections($name)
     {
         if (!$name) {
             return $this->error('-100001', '参数错误：集合名称不能为空');
@@ -43,7 +48,7 @@ class DbCollection extends Db
      * @param $offset 位移
      * @return array 参考：https://developers.weixin.qq.com/miniprogram/dev/wxcloud/reference-http-api/database/databaseCollectionGet.html
      */
-    public function getConnections($limit, $offset)
+    public function getCollections($limit, $offset)
     {
         if (!is_int($limit) || $limit <= 0) {
             return $this->error('-100001', '参数错误：数量限制必须为数字且不能小于等于0');
@@ -58,22 +63,28 @@ class DbCollection extends Db
     }
 
     /**
-     *
-     * @param $connectionName
-     * @param array $where
-     * @param array $orWhere
-     * @param array $limit
+     * 集合查询
+     * @param array $where [["key",value=array,string,number],]
+     * @param array $orWhere [["key",value=array,string,number],]
+     * @param array $limit [10, 1]
+     * @param array $orderBy ["id desc",]
+     * @param array $field []
      * @return mixed
      */
-    public function getDocList($where = [], $orWhere = [], $limit = [])
+    public function get($where = [], $orWhere = [], $limit = [], $orderBy = [], $field = [])
     {
-        $query = $this->where($where, $orWhere)->limit($limit)->get()->query();
+        $query = $this->where($where, $orWhere)->orderBy($orderBy)->limit($limit)->field($field)->getQuery()->query();
         return $this->DbPostReqeust(Config::$db['databaseQuery'], [
             'query' => $query,
         ]);
     }
 
-    public function addDoc($connectionName, $data)
+    /**
+     * 添加文档
+     * @param $data 文档内容
+     * @return array
+     */
+    public function add($data)
     {
         $query = $this->query();
         $query .= '.add({data:' . json_encode($data, JSON_UNESCAPED_UNICODE) . '})';
@@ -83,13 +94,51 @@ class DbCollection extends Db
         ]);
     }
 
-    public function updateDoc($data, $where = [], $orWhere = [])
+    /**
+     * 修改文档
+     * @param $data 文档内容
+     * @param array $where
+     * @param array $orWhere
+     * @return array
+     */
+    public function update($data, $where = [], $orWhere = [])
     {
         $query = $this->where($where, $orWhere)->query();
-        echo $query;
         $query .= '.update({data:' . json_encode($data, JSON_UNESCAPED_UNICODE) . '})';
 
         return $this->DbPostReqeust(Config::$db['databaseUpdate'], [
+            'query' => $query,
+        ]);
+    }
+
+    /**
+     * 删除文档
+     * @param array $where
+     * @param array $orWhere
+     * @return array
+     */
+    public function delete($where = [], $orWhere = [])
+    {
+        $query = $this->where($where, $orWhere)->query();
+        $query .= '.remove()';
+
+        return $this->DbPostReqeust(Config::$db['databaseUpdate'], [
+            'query' => $query,
+        ]);
+    }
+
+    /**
+     * 查询数量
+     * @param array $where
+     * @param array $orWhere
+     * @return array
+     */
+    public function count($where = [], $orWhere = [])
+    {
+        $query = $this->where($where, $orWhere)->query();
+        $query .= '.count()';
+
+        return $this->DbPostReqeust(Config::$db['databaseCount'], [
             'query' => $query,
         ]);
     }

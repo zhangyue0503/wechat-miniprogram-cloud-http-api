@@ -4,8 +4,7 @@
 namespace zyblog\wxMpCloudHttpApi;
 
 
-use zyblog\wxMpCloudHttpApi\callFunction\CallFunction;
-use zyblog\wxMpCloudHttpApi\database\Db;
+use zyblog\wxMpCloudHttpApi\callFunction\Cf;
 use zyblog\wxMpCloudHttpApi\database\DbCollection;
 
 class CloudApi
@@ -24,11 +23,11 @@ class CloudApi
 
     /**
      * 云函数调用
-     * @return CallFunction 云函数调用对象
+     * @return Cf 云函数调用对象
      */
     public function callFunction(){
         if(self::$callFunction == NULL){
-            self::$callFunction = new CallFunction($this->env, $this->accessToken);
+            self::$callFunction = new Cf($this->env, $this->accessToken);
         }
         return self::$callFunction;
     }

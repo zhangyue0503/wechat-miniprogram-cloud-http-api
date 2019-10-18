@@ -20,7 +20,7 @@ $cloudApi = new CloudApi($env, $accessToken);
 
 
 // 添加doc
-//$cloudApi->db()->addDoc('test-20191016', [
+//$cloudApi->db()->add('test-20191016', [
 //    [
 //        'title'=>'试试',
 //        'sort' => 22,
@@ -42,13 +42,20 @@ $cloudApi = new CloudApi($env, $accessToken);
 //]);
 
 // 列表查询
-print_r($cloudApi->collection('test-20191016')->getDocList());
+//print_r($cloudApi->collection('test-20191016')->get());
 
 // 更新
-//print_r($cloudApi->collection('test-20191016')->updateDoc([
-//    'content' => '12121212'
-//], [
-//    ['title', '试试']
-//]));
+print_r($cloudApi->collection('test-20191016')->update([
+    'mem' => [
+        'foo' => 'aa',
+        'baz' => 'bb',
+        'cad' => 'cc',
+    ]
+], [
+    ['title', '试试']
+]));
 
-print_r($cloudApi->collection('test-20191016')->getDocList());
+print_r($cloudApi->collection('test-20191016')->get([],[],[],[],[
+    'content',
+    ['mem', [1]]
+]));

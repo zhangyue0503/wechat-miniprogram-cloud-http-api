@@ -3,7 +3,12 @@
 
 namespace zyblog\wxMpCloudHttpApi\database\tools;
 
-
+/**
+ * 查询条件类
+ * todo 组合算法待优化
+ * Class DbCondition
+ * @package zyblog\wxMpCloudHttpApi\database\tools
+ */
 class DbCondition
 {
     /**
