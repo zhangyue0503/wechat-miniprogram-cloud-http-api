@@ -5,11 +5,10 @@ namespace zyblog\wxMpCloudHttpApi\database\tools;
 
 /**
  * 查询条件类
- * todo 组合算法待优化
  * Class DbCondition
  * @package zyblog\wxMpCloudHttpApi\database\tools
  */
-class DbCondition
+class DbCondition extends DbToolsBase
 {
     /**
      * where条件组合
@@ -18,23 +17,7 @@ class DbCondition
      */
     public function Where($where = [])
     {
-        $whereObj = [];
-        foreach ($where as $w) {
-            list($k, $w) = $w;
-            if (!$k || !$w) {
-                continue;
-            }
-            // 拆解字段值
-            list($field, $operator) = explode(' ', $k);
-            $operator = $operator ?: '[=]';
-            $value = $w;
-
-            if (is_array($value) && !in_array($operator, ['[nin]', '[in]'])) {
-                $whereObj[] = $this->CompositeWhere($field, $value);
-            } else {
-                $whereObj[] = $this->Operator($field, $value, $operator);
-            }
-        }
+        $whereObj = $this->loopWhere($where);
         return implode(',', $whereObj);
     }
 
@@ -47,22 +30,35 @@ class DbCondition
     private function CompositeWhere($f, $w)
     {
         $whereString = '' . $f . ':{';
+        $whereObjs = $this->loopWhere($w);
+        $whereString .= implode(',', $whereObjs) . '}';
+        return $whereString;
+    }
+
+    /**
+     * where条件参数组合
+     * @param $wheres
+     * @return array
+     */
+    private function loopWhere($wheres)
+    {
         $whereObjs = [];
-        foreach ($w as $v) {
-            list($k, $v) = $v;
+        foreach ($wheres as $k => $v) {
+            if (!$v) {
+                continue;
+            }
             // 拆解字段值
             list($field, $operator) = explode(' ', $k);
             $operator = $operator ?: '[=]';
             $value = $v;
 
             if (is_array($value) && !in_array($operator, ['[nin]', '[in]'])) {
-                $whereObjs[] = $this->CompositeWhere($field, $value) ;
+                $whereObjs[] = $this->CompositeWhere($field, $value);
             } else {
-                $whereObjs[] = $this->Operator($field, $value, $operator) ;
+                $whereObjs[] = $this->Operator($field, $value, $operator);
             }
         }
-        $whereString .= implode(',', $whereObjs) . '}';
-        return $whereString;
+        return $whereObjs;
     }
 
     /**
@@ -74,58 +70,57 @@ class DbCondition
      */
     private function Operator($field, $value, $operator)
     {
-        $wString = '' . $field . ':';
-        if(is_string($value)){
+        if (is_string($value)) {
             $value = addslashes($value);
         }
-        if(is_array($value)){
-            array_map(function(&$v){
-                if(is_string($v)){
+        if (is_array($value)) {
+            array_map(function (&$v) {
+                if (is_string($v)) {
                     $v = addslashes($v);
                 }
             }, $value);
         }
+
         switch ($operator) {
             case '[eq]':
             case '[=]':
-                $wString .= '"' . $value . '"';
+                $value = '"' . $value . '"';
                 break;
             case '[gt]':
             case '[>]':
-                $wString .= "_.gt(" . $value . ")";
+                $value = "_.gt(" . $value . ")";
                 break;
             case '[gte]':
             case '[>=]':
-                $wString .= "_.gte(" . $value . ")";
+                $value = "_.gte(" . $value . ")";
                 break;
             case '[lt]':
             case '[<]':
-                $wString .= "_.lt(" . $value . ")";
+                $value = "_.lt(" . $value . ")";
                 break;
             case '[lte]':
             case '[<=]':
-                $wString .= "_.lte(" . $value . ")";
+                $value = "_.lte(" . $value . ")";
                 break;
             case '[neq]':
             case '[<>]':
             case '[!=]':
-                $wString .= "_.neq(" . $value . ")";
+                $value = "_.neq(" . $value . ")";
                 break;
             case '[in]':
-                $wString .= "_.in(" . json_encode((array)$value, JSON_UNESCAPED_UNICODE) . ")";
+                $value = "_.in(" . json_encode((array)$value, JSON_UNESCAPED_UNICODE) . ")";
                 break;
             case '[not in]':
             case '[nin]':
-                $wString .= "_.nin(" . json_encode((array)$value, JSON_UNESCAPED_UNICODE) . ")";
+                $value = "_.nin(" . json_encode((array)$value, JSON_UNESCAPED_UNICODE) . ")";
                 break;
             case '[like]':
-                $wString .= "/" . $value . "/";
+                $value = "/" . $value . "/";
                 break;
             case '[not like]':
-                $wString .= "/^" . $value . "/";
+                $value = "/^" . $value . "/";
                 break;
         }
-
-        return $wString;
+        return $this->CompositeField($field, $value);
     }
 }

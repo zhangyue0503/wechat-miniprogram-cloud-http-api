@@ -22,7 +22,7 @@ class DbCollection extends Db
         if (!$name) {
             return $this->error('-100001', '参数错误：集合名称不能为空');
         }
-        return $this->DbPostReqeust(Config::$db['databaseCollectionAdd'], [
+        return $this->DbPostReqeust(Config::$DATABASE_COLLECTION_ADD, [
             'collection_name' => $name,
         ]);
     }
@@ -37,7 +37,7 @@ class DbCollection extends Db
         if (!$name) {
             return $this->error('-100001', '参数错误：集合名称不能为空');
         }
-        return $this->DbPostReqeust(Config::$db['databaseCollectionDelete'], [
+        return $this->DbPostReqeust(Config::$DATABASE_COLLECTION_DELETE, [
             'collection_name' => $name,
         ]);
     }
@@ -56,7 +56,7 @@ class DbCollection extends Db
         if (!is_int($offset) || $offset < 0) {
             return $this->error('-100001', '参数错误：偏移量必须为数字且不能小于0');
         }
-        return $this->DbPostReqeust(Config::$db['databaseCollectionGet'], [
+        return $this->DbPostReqeust(Config::$DATABASE_COLLECTION_GET, [
             'limit'  => (int)$limit,
             'offset' => (int)$offset,
         ]);
@@ -74,7 +74,7 @@ class DbCollection extends Db
     public function get($where = [], $orWhere = [], $limit = [], $orderBy = [], $field = [])
     {
         $query = $this->where($where, $orWhere)->orderBy($orderBy)->limit($limit)->field($field)->getQuery()->query();
-        return $this->DbPostReqeust(Config::$db['databaseQuery'], [
+        return $this->DbPostReqeust(Config::$DATABASE_QUERY, [
             'query' => $query,
         ]);
     }
@@ -89,7 +89,7 @@ class DbCollection extends Db
         $query = $this->query();
         $query .= '.add({data:' . json_encode($data, JSON_UNESCAPED_UNICODE) . '})';
 
-        return $this->DbPostReqeust(Config::$db['databaseAdd'], [
+        return $this->DbPostReqeust(Config::$DATABASE_ADD, [
             'query' => $query,
         ]);
     }
@@ -106,7 +106,7 @@ class DbCollection extends Db
         $query = $this->where($where, $orWhere)->query();
         $query .= '.update({data:' . json_encode($data, JSON_UNESCAPED_UNICODE) . '})';
 
-        return $this->DbPostReqeust(Config::$db['databaseUpdate'], [
+        return $this->DbPostReqeust(Config::$DATABASE_UPDATE, [
             'query' => $query,
         ]);
     }
@@ -122,7 +122,7 @@ class DbCollection extends Db
         $query = $this->where($where, $orWhere)->query();
         $query .= '.remove()';
 
-        return $this->DbPostReqeust(Config::$db['databaseUpdate'], [
+        return $this->DbPostReqeust(Config::$DATABASE_DELETE, [
             'query' => $query,
         ]);
     }
@@ -138,7 +138,7 @@ class DbCollection extends Db
         $query = $this->where($where, $orWhere)->query();
         $query .= '.count()';
 
-        return $this->DbPostReqeust(Config::$db['databaseCount'], [
+        return $this->DbPostReqeust(Config::$DATABASE_COUNT, [
             'query' => $query,
         ]);
     }

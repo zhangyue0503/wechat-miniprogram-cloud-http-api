@@ -2,20 +2,18 @@
 
 namespace zyblog\wxMpCloudHttpApi;
 
-trait Config
+class Config
 {
     public static $callFunctionApi = 'https://api.weixin.qq.com/cgi-bin/token';
 
-    public static $db = [
-        'databaseCollectionGet'    => 'https://api.weixin.qq.com/tcb/databasecollectionget',
-        'databaseCollectionAdd'    => 'https://api.weixin.qq.com/tcb/databasecollectionadd',
-        'databaseCollectionDelete' => 'https://api.weixin.qq.com/tcb/databasecollectiondelete',
+    public static $DATABASE_COLLECTION_GET    = 'https://api.weixin.qq.com/tcb/databasecollectionget';
+    public static $DATABASE_COLLECTION_ADD    = 'https://api.weixin.qq.com/tcb/databasecollectionadd';
+    public static $DATABASE_COLLECTION_DELETE = 'https://api.weixin.qq.com/tcb/databasecollectiondelete';
 
-        'databaseQuery'  => 'https://api.weixin.qq.com/tcb/databasequery',
-        'databaseAdd'    => 'https://api.weixin.qq.com/tcb/databaseadd',
-        'databaseUpdate' => 'https://api.weixin.qq.com/tcb/databaseupdate',
-        'databaseDelete' => 'https://api.weixin.qq.com/tcb/databasedelete',
-        'databaseCount'  => 'https://api.weixin.qq.com/tcb/databasecount',
-    ];
+    public static $DATABASE_QUERY  = 'https://api.weixin.qq.com/tcb/databasequery';
+    public static $DATABASE_ADD    = 'https://api.weixin.qq.com/tcb/databaseadd';
+    public static $DATABASE_UPDATE = 'https://api.weixin.qq.com/tcb/databaseupdate';
+    public static $DATABASE_DELETE = 'https://api.weixin.qq.com/tcb/databasedelete';
+    public static $DATABASE_COUNT  = 'https://api.weixin.qq.com/tcb/databasecount';
 
 }

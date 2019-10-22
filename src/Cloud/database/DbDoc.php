@@ -19,7 +19,7 @@ class DbDoc extends Db
      */
     public function get($fields = []){
         $query = $this->field($fields)->getQuery()->query();
-        return $this->DbPostReqeust(Config::$db['databaseQuery'], [
+        return $this->DbPostReqeust(Config::$DATABASE_QUERY, [
             'query' => $query,
         ]);
     }
@@ -34,7 +34,7 @@ class DbDoc extends Db
         $query = $this->query();
         $query .= '.update({data:' . json_encode($data, JSON_UNESCAPED_UNICODE) . '})';
 
-        return $this->DbPostReqeust(Config::$db['databaseUpdate'], [
+        return $this->DbPostReqeust(Config::$DATABASE_UPDATE, [
             'query' => $query,
         ]);
     }
@@ -50,7 +50,7 @@ class DbDoc extends Db
         $query = $this->query();
         $query .= '.set({data:' . json_encode($data, JSON_UNESCAPED_UNICODE) . '})';
 
-        return $this->DbPostReqeust(Config::$db['databaseUpdate'], [
+        return $this->DbPostReqeust(Config::$DATABASE_UPDATE, [
             'query' => $query,
         ]);
     }
@@ -65,7 +65,7 @@ class DbDoc extends Db
         $query = $this->query();
         $query .= '.remove()';
 
-        return $this->DbPostReqeust(Config::$db['databaseUpdate'], [
+        return $this->DbPostReqeust(Config::$DATABASE_DELETE, [
             'query' => $query,
         ]);
     }

@@ -15,6 +15,12 @@ class CloudApi
     private static $callFunction;
     private static $collection;
 
+    /**
+     * 微信云服务开发
+     * CloudApi constructor.
+     * @param $env 云环境ID
+     * @param $accessToken AccessToken
+     */
     public function __construct($env, $accessToken)
     {
         $this->env = $env;
@@ -32,7 +38,11 @@ class CloudApi
         return self::$callFunction;
     }
 
-
+    /**
+     * 数据库操作
+     * @param $collectionName 集合名称
+     * @return DbCollection
+     */
     public function collection($collectionName){
         if(self::$collection == NULL){
             self::$collection = new DbCollection($this->env, $this->accessToken);

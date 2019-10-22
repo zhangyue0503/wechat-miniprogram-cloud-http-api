@@ -5,6 +5,7 @@ namespace zyblog\wxMpCloudHttpApi\database;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 use zyblog\wxMpCloudHttpApi\database\tools\DbCondition;
+use zyblog\wxMpCloudHttpApi\database\tools\DbField;
 
 class Db
 {
@@ -14,6 +15,10 @@ class Db
 
     protected $queryString;
     protected $collectionName;
+
+    // 静态实例
+    private static $dbField; // 数据字段处理类
+    private static $dbConditiion; // 数据条件组合类
 
     /**
      * Db constructor.
@@ -68,50 +73,51 @@ class Db
         return $this->queryString;
     }
 
+    public function setQuery($queryString){
+        $this->queryString = $queryString;
+        return $this;
+    }
+
+    public function execute($url){
+        return $this->DbPostReqeust($url, [
+            'query' => $this->queryString,
+        ],[]);
+    }
+
     public function where($where = [], $orWhere = [])
     {
-        $condition = new DbCondition();
-        if (count($where) > 0) {
+        $condition = $this->getDbConditionInstance();
+        if (is_array($where) && count($where) > 0) {
             $this->queryString .= ".where({" . $condition->Where($where) . "})";
+        } else if (is_string($where) && $where) {
+            $this->queryString .= ".where({" . $where . "})";
         }
-        if (count($orWhere) > 0) {
+        if (is_array($where) && count($orWhere) > 0) {
             $this->queryString .= ".where(_.or(";
             $orString = [];
             foreach ($orWhere as $orw) {
                 $orString[] = '{' . $condition->Where([$orw]) . '}';
             }
             $this->queryString .= implode(',', $orString) . "))";
+        } else if (is_string($orWhere) && $orWhere) {
+            $this->queryString .= ".where(_.or(" . $orWhere . "))";
         }
+
         return $this;
     }
 
-    protected function field($fields = [])
+    public function field($fields = [])
     {
-        if (count($fields) > 0) {
-            $fieldString = [];
-            foreach ($fields as $field) {
-                if (is_array($field) && count($field) == 2) {
-                    list($k, $v) = $field;
-                    if (is_array($v) && in_array(count($v), [1, 2])) {
-                        $slice = implode(',', array_map(function ($n) {
-                            return (int)$n;
-                        }, $v));
-                    } else {
-                        $slice = (int)$v;
-                    }
-                    $fieldString[] = $k . ':_.project.slice(' . $slice . ')';
-                } else {
-                    $fieldString[] = (string)$field . ': true';
-                }
-            }
-            if (count($fieldString) > 0) {
-                $this->queryString .= '.field({' . implode(',', $fieldString) . '})';
-            }
+        if (is_string($fields) && $fields) {
+            $this->queryString .= ".field({" . $fields . "})";
+        } else if (count($fields) > 0) {
+            $dbField = $this->getDbFieldInstance();
+            $this->queryString .= '.field({' . $dbField->Field($fields) . '})';
         }
         return $this;
     }
 
-    protected function limit($limit)
+    public function limit($limit)
     {
         if (is_array($limit) && count($limit) == 2) {
             if (is_int($limit[0]) && $limit[0] > 0) {
@@ -125,7 +131,7 @@ class Db
         return $this;
     }
 
-    protected function orderBy($orderBys = [])
+    public function orderBy($orderBys = [])
     {
         if (is_array($orderBys) && count($orderBys) > 0) {
             foreach ($orderBys as $o) {
@@ -189,4 +195,27 @@ class Db
         ];
     }
 
+    /**
+     * 创建字段处理类实例
+     * @return DbField 字段处理类
+     */
+    private function getDbFieldInstance()
+    {
+        if (self::$dbField == NULL) {
+            self::$dbField = new DbField();
+        }
+        return self::$dbField;
+    }
+
+    /**
+     * 创建查询条件组合处理类实例
+     * @return DbCondition
+     */
+    private function getDbConditionInstance()
+    {
+        if (self::$dbConditiion == NULL) {
+            self::$dbConditiion = new DbCondition();
+        }
+        return self::$dbConditiion;
+    }
 }
