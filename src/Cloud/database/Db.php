@@ -19,6 +19,7 @@ class Db
     // 静态实例
     private static $dbField; // 数据字段处理类
     private static $dbConditiion; // 数据条件组合类
+    private static $client; // 接口请求组件
 
     /**
      * Db constructor.
@@ -171,7 +172,7 @@ class Db
             ],
         ];
         try {
-            $client = new Client();
+            $client = $this->getClient();
             $response = $client->request('POST', $url, [
                 'query' => $queryParams,
                 'json'  => $bodyParams, //'{"env":"acp-4ff2bb","query":"db.collection(\"acp_tt\").get()"}',
@@ -217,5 +218,13 @@ class Db
             self::$dbConditiion = new DbCondition();
         }
         return self::$dbConditiion;
+    }
+
+    private function getClient()
+    {
+        if (self::$client == NULL) {
+            self::$client = new Client();
+        }
+        return self::$client;
     }
 }
