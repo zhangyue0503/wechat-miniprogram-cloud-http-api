@@ -52,7 +52,7 @@ class DbCondition extends DbToolsBase
             $operator = $operator ?: '[=]';
             $value = $v;
 
-            if (is_array($value) && !in_array($operator, ['[nin]', '[in]'])) {
+            if (is_array($value) && !in_array($operator, ['[nin]', '[in]', '[reg]', '[geoNear]', '[geoWithin]', '[geoIntersects]', '[_eq]'])) {
                 $whereObjs[] = $this->CompositeWhere($field, $value);
             } else {
                 $whereObjs[] = $this->Operator($field, $value, $operator);
@@ -86,6 +86,9 @@ class DbCondition extends DbToolsBase
             case '[=]':
                 $value = '"' . $value . '"';
                 break;
+            case '[_eq]':
+                $value = '_.eq(' . (is_array($value) ? json_encode($value, JSON_UNESCAPED_UNICODE) : $value) . ')';
+                break;
             case '[gt]':
             case '[>]':
                 $value = "_.gt(" . $value . ")";
@@ -115,10 +118,42 @@ class DbCondition extends DbToolsBase
                 $value = "_.nin(" . json_encode((array)$value, JSON_UNESCAPED_UNICODE) . ")";
                 break;
             case '[like]':
-                $value = "/" . $value . "/";
+                $value = "/" . $value . "/im";
                 break;
             case '[not like]':
-                $value = "/^" . $value . "/";
+                $value = "/^" . $value . "/im";
+                break;
+            case '[exists]':
+                $value = "_.exists(" . ($value ? 'true' : 'false') . ")";
+                break;
+            case '[reg]':
+                if (isset($value['regexp'])) {
+                    $opt = $value['options'] ?: 'im';
+                    $value = "db.RegExp({regexp:\"" . $value['regexp'] . "\", options: \"" . $opt . "\"})";
+                }
+                break;
+            case '[geoNear]':
+                if (isset($value['geometry'])) {
+                    $resValue = 'db.command.geoNear({';
+                    $subValue[] = 'geometry:db.Geo.Point(' . $value['geometry'] . ')';
+                    if (isset($value['minDistance'])) {
+                        $subValue[] = 'minDistance: ' . (int)$value['minDistance'];
+                    }
+                    if (isset($value['maxDistance'])) {
+                        $subValue[] = 'maxDistance: ' . (int)$value['maxDistance'];
+                    }
+                    $resValue .= implode(',', $subValue) . '})';
+                    $value = $resValue;
+                }
+                break;
+            case '[geoWithin]':
+            case '[geoIntersects]':
+                if (isset($value['geometry'])) {
+                    $value = 'db.command.geoWithin({geometry:' . $value['geometry'] . '})';
+                }
+                if (isset($value['centerSphere'])) {
+                    $value = 'db.command.geoWithin({centerSphere:' . $value['centerSphere'] . '})';
+                }
                 break;
         }
         return $this->CompositeField($field, $value);

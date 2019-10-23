@@ -45,7 +45,7 @@ class DbField extends DbToolsBase
                     } else {
                         $slice = (int)$pValue;
                     }
-                    $fieldStrings[] = $this->CompositeField($pKey, '_.project.slice(' . $slice . ')');
+                    $fieldStrings[] = $this->CompositeField($pKey, 'db.command.project.slice(' . $slice . ')');
                 }
             } else if (is_string($v)) {
                 // ["content",……]
@@ -54,7 +54,6 @@ class DbField extends DbToolsBase
         }
         return $fieldStrings;
     }
-
 
 
 }
