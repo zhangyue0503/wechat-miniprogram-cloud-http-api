@@ -16,6 +16,9 @@ class DbToolsBase
      */
     protected function CompositeField($k, $v, $operator = ':')
     {
+        if (!$k) {
+            $operator = '';
+        }
         if (strpos(trim($k, '.'), '.')) {
             $keys = explode('.', $k);
             $compositeKey = '';
@@ -23,7 +26,7 @@ class DbToolsBase
             if ($countKeys > 0) {
                 foreach ($keys as $kk => $vv) {
                     if ($kk < $countKeys - 1) {
-                        $compositeKey .= $vv . ':{';
+                        $compositeKey .= $vv . $operator . '{';
                     } else {
                         $compositeKey .= $vv;
                     }

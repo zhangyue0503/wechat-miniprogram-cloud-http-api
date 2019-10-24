@@ -44,15 +44,11 @@ class DbCondition extends DbToolsBase
     {
         $whereObjs = [];
         foreach ($wheres as $k => $v) {
-            if (!$v) {
-                continue;
-            }
             // 拆解字段值
             list($field, $operator) = explode(' ', $k);
             $operator = $operator ?: '[=]';
             $value = $v;
-
-            if (is_array($value) && !in_array($operator, ['[nin]', '[in]', '[reg]', '[geoNear]', '[geoWithin]', '[geoIntersects]', '[_eq]'])) {
+            if (is_array($value) && !in_array($operator, ['[nin]', '[in]', '[reg]', '[geoNear]', '[geoWithin]', '[geoIntersects]', '[_eq]', '[all]', '[elemMatch]', '[and]', '[or]', '[nor]'])) {
                 $whereObjs[] = $this->CompositeWhere($field, $value);
             } else {
                 $whereObjs[] = $this->Operator($field, $value, $operator);
@@ -80,7 +76,7 @@ class DbCondition extends DbToolsBase
                 }
             }, $value);
         }
-
+        $opt = ':';
         switch ($operator) {
             case '[eq]':
             case '[=]':
@@ -126,10 +122,50 @@ class DbCondition extends DbToolsBase
             case '[exists]':
                 $value = "_.exists(" . ($value ? 'true' : 'false') . ")";
                 break;
+            case '[size]':
+                $value = "_.size(" . $value . ")";
+                break;
+            case '[mod]':
+                $value = "_.mod(" . $value . ")";
+                break;
             case '[reg]':
                 if (isset($value['regexp'])) {
                     $opt = $value['options'] ?: 'im';
                     $value = "db.RegExp({regexp:\"" . $value['regexp'] . "\", options: \"" . $opt . "\"})";
+                }
+                break;
+            case '[and]':
+                if (is_array($value) && count($value) > 0) {
+                    $value = '_.and(' . $this->Where($value) . ')';
+                }
+                break;
+            case '[or]':
+                if (is_array($value) && count($value) > 0) {
+                    $value = '_.or(' . $this->Where($value) . ')';
+                }
+                break;
+            case '[nor]':
+                if (is_array($value) && count($value) > 0) {
+                    $value = '_.nor([' . $this->Where($value) . '])';
+                }
+                break;
+            case '[elemMatch]':
+                if (is_array($value) && count($value) > 0) {
+                    $value = '_.elemMatch({' . $this->Where($value) . '})';
+                }
+                break;
+            case '[all]':
+                if (is_array($value) && count($value) > 0) {
+                    $resValue = '_.all([';
+                    $subs = [];
+                    foreach ($value as $v) {
+                        if (is_array($v)) {
+                            $subs[] = '_.elemMatch({' . $this->Where($v) . '})';
+                        } else {
+                            $subs[] = '"' . $v . '"';
+                        }
+                    }
+                    $value = $resValue . implode(',', $subs) . '])';
                 }
                 break;
             case '[geoNear]':
@@ -156,6 +192,6 @@ class DbCondition extends DbToolsBase
                 }
                 break;
         }
-        return $this->CompositeField($field, $value);
+        return $this->CompositeField($field, $value, $opt);
     }
 }
