@@ -10,14 +10,17 @@ namespace zyblog\wxMpCloudHttpApi\database\tools;
  */
 class DbCondition extends DbToolsBase
 {
+
+    private $extrinsicOperator = ['[nin]', '[in]', '[reg]', '[geoNear]', '[geoWithin]', '[geoIntersects]', '[_eq]', '[all]', '[elemMatch]', '[and]', '[or]', '[nor]'];
+
     /**
      * where条件组合
      * @param array $where where条件
      * @return string 解析后的where条件
      */
-    public function Where($where = [])
+    public function where($where = [])
     {
-        $whereObj = $this->loopWhere($where);
+        $whereObj = $this->loop($where, $this->extrinsicOperator);
         return implode(',', $whereObj);
     }
 
@@ -27,35 +30,37 @@ class DbCondition extends DbToolsBase
      * @param $w 内容值
      * @return string 组合后的内容
      */
-    private function CompositeWhere($f, $w)
+    protected function composite($f, $w)
     {
-        $whereString = '' . $f . ':{';
-        $whereObjs = $this->loopWhere($w);
-        $whereString .= implode(',', $whereObjs) . '}';
+        if(is_numeric($f)){
+            $whereString = '{' . implode(',',$this->loop($w, $this->extrinsicOperator)) . '}';
+        }else{
+            $whereString = $f . ':{' . implode(',',$this->loop($w, $this->extrinsicOperator)) . '}';
+        }
         return $whereString;
     }
 
-    /**
-     * where条件参数组合
-     * @param $wheres
-     * @return array
-     */
-    private function loopWhere($wheres)
-    {
-        $whereObjs = [];
-        foreach ($wheres as $k => $v) {
-            // 拆解字段值
-            list($field, $operator) = explode(' ', $k);
-            $operator = $operator ?: '[=]';
-            $value = $v;
-            if (is_array($value) && !in_array($operator, ['[nin]', '[in]', '[reg]', '[geoNear]', '[geoWithin]', '[geoIntersects]', '[_eq]', '[all]', '[elemMatch]', '[and]', '[or]', '[nor]'])) {
-                $whereObjs[] = $this->CompositeWhere($field, $value);
-            } else {
-                $whereObjs[] = $this->Operator($field, $value, $operator);
-            }
-        }
-        return $whereObjs;
-    }
+//    /**
+//     * where条件参数组合
+//     * @param $wheres
+//     * @return array
+//     */
+//    private function loopWhere($wheres)
+//    {
+//        $whereObjs = [];
+//        foreach ($wheres as $k => $v) {
+//            // 拆解字段值
+//            list($field, $operator) = explode(' ', $k);
+//            $operator = $operator ?: '[=]';
+//            $value = $v;
+//            if (is_array($value) && !in_array($operator, ['[nin]', '[in]', '[reg]', '[geoNear]', '[geoWithin]', '[geoIntersects]', '[_eq]', '[all]', '[elemMatch]', '[and]', '[or]', '[nor]'])) {
+//                $whereObjs[] = $this->CompositeWhere($field, $value);
+//            } else {
+//                $whereObjs[] = $this->Operator($field, $value, $operator);
+//            }
+//        }
+//        return $whereObjs;
+//    }
 
     /**
      * 操作符解析
@@ -64,7 +69,7 @@ class DbCondition extends DbToolsBase
      * @param $operator 操作符
      * @return string 解析后的内容
      */
-    private function Operator($field, $value, $operator)
+    protected function operator($field, $value, $operator)
     {
         if (is_string($value)) {
             $value = addslashes($value);
@@ -80,7 +85,7 @@ class DbCondition extends DbToolsBase
         switch ($operator) {
             case '[eq]':
             case '[=]':
-                $value = '"' . $value . '"';
+                $value = is_numeric($value) ? $value : '"' . $value . '"';
                 break;
             case '[_eq]':
                 $value = '_.eq(' . (is_array($value) ? json_encode($value, JSON_UNESCAPED_UNICODE) : $value) . ')';

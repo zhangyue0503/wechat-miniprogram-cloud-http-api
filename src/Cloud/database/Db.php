@@ -5,6 +5,7 @@ namespace zyblog\wxMpCloudHttpApi\database;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 use zyblog\wxMpCloudHttpApi\database\tools\DbCondition;
+use zyblog\wxMpCloudHttpApi\database\tools\DbData;
 use zyblog\wxMpCloudHttpApi\database\tools\DbField;
 
 class Db
@@ -20,6 +21,7 @@ class Db
     private static $dbField; // 数据字段处理类
     private static $dbConditiion; // 数据条件组合类
     private static $client; // 接口请求组件
+    private static $dbData; // 数据更新修改字段
 
     /**
      * Db constructor.
@@ -89,7 +91,7 @@ class Db
     {
         $condition = $this->getDbConditionInstance();
         if (is_array($where) && count($where) > 0) {
-            $this->queryString .= ".where({" . $condition->Where($where) . "})";
+            $this->queryString .= ".where({" . $condition->where($where) . "})";
         } else if (is_string($where) && $where) {
             $this->queryString .= ".where({" . $where . "})";
         }
@@ -97,7 +99,7 @@ class Db
             $this->queryString .= ".where(_.or(";
             $orString = [];
             foreach ($orWhere as $orw) {
-                $orString[] = '{' . $condition->Where([$orw]) . '}';
+                $orString[] = '{' . $condition->where([$orw]) . '}';
             }
             $this->queryString .= implode(',', $orString) . "))";
         } else if (is_string($orWhere) && $orWhere) {
@@ -116,6 +118,11 @@ class Db
             $this->queryString .= '.field({' . $dbField->Field($fields) . '})';
         }
         return $this;
+    }
+
+    public function data($data){
+        $dbData = $this->getDbData();
+        return $dbData->data($data);
     }
 
     public function limit($limit)
@@ -226,5 +233,13 @@ class Db
             self::$client = new Client();
         }
         return self::$client;
+    }
+
+    private function getDbData()
+    {
+        if (self::$dbData == NULL) {
+            self::$dbData = new DbData();
+        }
+        return self::$dbData;
     }
 }

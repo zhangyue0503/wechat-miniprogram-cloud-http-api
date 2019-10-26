@@ -17,7 +17,7 @@ class DbField extends DbToolsBase
      */
     public function Field($fields = [])
     {
-        $fieldStrings = $this->loop($fields);
+        $fieldStrings = $this->loopField($fields);
         return implode(',', $fieldStrings);
     }
 
@@ -26,7 +26,7 @@ class DbField extends DbToolsBase
      * @param array $fields
      * @return array
      */
-    private function loop($fields)
+    private function loopField($fields)
     {
         $fieldStrings = [];
         foreach ($fields as $v) {
@@ -56,4 +56,13 @@ class DbField extends DbToolsBase
     }
 
 
+    protected function composite($field, $value)
+    {
+        // Nothing
+    }
+
+    protected function operator($field, $value, $operator)
+    {
+        // Nothing
+    }
 }

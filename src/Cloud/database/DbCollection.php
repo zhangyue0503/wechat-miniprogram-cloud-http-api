@@ -87,7 +87,7 @@ class DbCollection extends Db
     public function add($data)
     {
         $query = $this->query();
-        $query .= '.add({data:' . json_encode($data, JSON_UNESCAPED_UNICODE) . '})';
+        $query .= '.add({data:' . (is_string($data) ? $data : $this->data($data)) . '})';
 
         return $this->DbPostReqeust(Config::$DATABASE_ADD, [
             'query' => $query,
@@ -104,7 +104,7 @@ class DbCollection extends Db
     public function update($data, $where = [], $orWhere = [])
     {
         $query = $this->where($where, $orWhere)->query();
-        $query .= '.update({data:' . json_encode($data, JSON_UNESCAPED_UNICODE) . '})';
+        $query .= '.update({data:{' . (is_string($data) ? $data : $this->data($data)) . '}})';
 
         return $this->DbPostReqeust(Config::$DATABASE_UPDATE, [
             'query' => $query,
