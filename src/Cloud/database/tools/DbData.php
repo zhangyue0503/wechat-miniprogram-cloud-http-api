@@ -6,7 +6,7 @@ namespace zyblog\wxMpCloudHttpApi\database\tools;
 
 class DbData extends DbToolsBase
 {
-    private $extrinsicOperator = ['[set]'];
+    private $extrinsicOperator = ['[set]', '[push]', '[unshift]', '[addToSet]', '[pullAll]', '[pull]'];
 
     public function data($data)
     {
@@ -62,7 +62,56 @@ class DbData extends DbToolsBase
             case '[rename]':
                 $value = '_.rename(\"' . $value . '\")';
                 break;
-
+            case '[push]':
+                $resValue = '_.push(';
+                if (isset($value['each'])) {
+                    $resValue .= '{';
+                    $subValus[] = 'each:' . json_encode($value['each'], JSON_UNESCAPED_UNICODE);
+                    if (isset($value['position'])) {
+                        $subValus[] = 'position:' . $value['position'];
+                    }
+                    if (isset($value['sort'])) {
+                        $subValus[] = 'sort:' . (is_array($value['sort']) ? json_encode($value['sort'], JSON_UNESCAPED_UNICODE) : $value['sort']);
+                    }
+                    if (isset($value['slice'])) {
+                        $subValus[] = 'slice:' . $value['slice'];
+                    }
+                    $resValue .= implode(',', $subValus) . '}';
+                } else {
+                    $resValue .= json_encode($value, JSON_UNESCAPED_UNICODE);
+                }
+                $value = $resValue . ')';
+                break;
+            case '[pop]':
+                $value = '_.pop()';
+                break;
+            case '[shift]':
+                $value = '_.shift()';
+                break;
+            case '[unshift]':
+                $value = '_.unshift(' . json_encode($value, JSON_UNESCAPED_UNICODE) . ')';
+                break;
+            case '[addToSet]': // cannot get property 'addToSet'
+                if (is_array($value)) {
+                    if (isset($value['each'])) {
+                        $value = $value['each'];
+                    }
+                    $value = '_.addToSet(' . json_encode($value, JSON_UNESCAPED_UNICODE) . ')';
+                } else {
+                    $value = '_.addToSet(' . (gettype($value) == 'string' ? '"' . $value . '"' : $value) . ')';
+                }
+                break;
+            case '[pullAll]':  // cannot get property 'pullAll'
+                $value = '_.pullAll(' . json_encode($value, JSON_UNESCAPED_UNICODE) . ')';
+                break;
+            case '[pull]': // cannot get property 'pull'
+                if (is_array($value)) {
+                    $con = new DbCondition();
+                    $value = '_.pull(' . $con->where($value) . ')';
+                } else {
+                    $value = '_.pull(' . (gettype($value) == 'string' ? '"' . $value . '"' : $value) . ')';
+                }
+                break;
         }
         return $this->CompositeField($field, $value, $opt);
     }

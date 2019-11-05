@@ -85,7 +85,7 @@ class DbCondition extends DbToolsBase
         switch ($operator) {
             case '[eq]':
             case '[=]':
-                $value = is_numeric($value) ? $value : '"' . $value . '"';
+                $value = gettype($value) != 'string' ? $value : '"' . $value . '"';
                 break;
             case '[_eq]':
                 $value = '_.eq(' . (is_array($value) ? json_encode($value, JSON_UNESCAPED_UNICODE) : $value) . ')';
@@ -141,22 +141,22 @@ class DbCondition extends DbToolsBase
                 break;
             case '[and]':
                 if (is_array($value) && count($value) > 0) {
-                    $value = '_.and(' . $this->Where($value) . ')';
+                    $value = '_.and(' . $this->where($value) . ')';
                 }
                 break;
             case '[or]':
                 if (is_array($value) && count($value) > 0) {
-                    $value = '_.or(' . $this->Where($value) . ')';
+                    $value = '_.or(' . $this->where($value) . ')';
                 }
                 break;
             case '[nor]':
                 if (is_array($value) && count($value) > 0) {
-                    $value = '_.nor([' . $this->Where($value) . '])';
+                    $value = '_.nor([' . $this->where($value) . '])';
                 }
                 break;
             case '[elemMatch]':
                 if (is_array($value) && count($value) > 0) {
-                    $value = '_.elemMatch({' . $this->Where($value) . '})';
+                    $value = '_.elemMatch({' . $this->where($value) . '})';
                 }
                 break;
             case '[all]':
@@ -165,7 +165,7 @@ class DbCondition extends DbToolsBase
                     $subs = [];
                     foreach ($value as $v) {
                         if (is_array($v)) {
-                            $subs[] = '_.elemMatch({' . $this->Where($v) . '})';
+                            $subs[] = '_.elemMatch({' . $this->where($v) . '})';
                         } else {
                             $subs[] = '"' . $v . '"';
                         }
