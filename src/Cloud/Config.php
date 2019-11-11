@@ -6,6 +6,10 @@ class Config
 {
     public static $callFunctionApi = 'https://api.weixin.qq.com/cgi-bin/token';
 
+    public static $UPLOAD_FILE = 'https://api.weixin.qq.com/tcb/uploadfile';
+    public static $BATCH_DOWNLOAD_FILE = 'https://api.weixin.qq.com/tcb/batchdownloadfile';
+    public static $BATCH_DELETE_FILE = 'https://api.weixin.qq.com/tcb/batchdeletefile';
+
     public static $DATABASE_COLLECTION_GET    = 'https://api.weixin.qq.com/tcb/databasecollectionget';
     public static $DATABASE_COLLECTION_ADD    = 'https://api.weixin.qq.com/tcb/databasecollectionadd';
     public static $DATABASE_COLLECTION_DELETE = 'https://api.weixin.qq.com/tcb/databasecollectiondelete';

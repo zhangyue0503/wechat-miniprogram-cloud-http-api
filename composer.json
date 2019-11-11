@@ -16,7 +16,10 @@
     "source": "https://github.com/zhangyue0503/wechat-miniprogram-cloud-http-api"
   },
   "require": {
-    "guzzlehttp/guzzle": "^6.3"
+    "guzzlehttp/guzzle": "^6.3",
+    "ext-json": "*",
+    "ext-mbstring": "*",
+    "ext-curl": "*"
   },
   "autoload": {
     "psr-4": {

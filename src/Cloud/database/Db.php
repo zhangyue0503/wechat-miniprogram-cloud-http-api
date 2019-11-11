@@ -1,15 +1,14 @@
 <?php
 
 namespace zyblog\wxMpCloudHttpApi\database;
-
-use GuzzleHttp\Client;
-use GuzzleHttp\Exception\GuzzleException;
+use zyblog\wxMpCloudHttpApi\Common;
 use zyblog\wxMpCloudHttpApi\database\tools\DbCondition;
 use zyblog\wxMpCloudHttpApi\database\tools\DbData;
 use zyblog\wxMpCloudHttpApi\database\tools\DbField;
 
 class Db
 {
+    use Common;
 
     protected $env;
     protected $accessToken;
@@ -20,7 +19,6 @@ class Db
     // 静态实例
     private static $dbField; // 数据字段处理类
     private static $dbConditiion; // 数据条件组合类
-    private static $client; // 接口请求组件
     private static $dbData; // 数据更新修改字段
 
     /**
@@ -82,7 +80,7 @@ class Db
     }
 
     public function execute($url){
-        return $this->DbPostReqeust($url, [
+        return $this->postReqeust($url, [
             'query' => $this->queryString,
         ],[]);
     }
@@ -154,55 +152,6 @@ class Db
     }
 
 
-    protected function DbPostReqeust($url, $bodyParams = [], $queryParams = [])
-    {
-        $queryParams = array_merge([
-            'access_token' => $this->accessToken,
-        ], $queryParams);
-
-        $bodyParams = array_merge([
-            'env' => $this->env,
-        ], $bodyParams);
-
-        if (!$this->accessToken) {
-            return $this->error('-100001', '参数错误：access_token接口调用凭证不能为空');
-        }
-        if (!$this->env) {
-            return $this->error('-100001', '参数错误：env云环境ID不能为空');
-        }
-
-        $requestLog = [
-            'url'    => $url,
-            'params' => [
-                'body_params'  => json_encode($bodyParams, JSON_UNESCAPED_UNICODE),
-                'query_params' => $queryParams,
-            ],
-        ];
-        try {
-            $client = $this->getClient();
-            $response = $client->request('POST', $url, [
-                'query' => $queryParams,
-                'json'  => $bodyParams, //'{"env":"acp-4ff2bb","query":"db.collection(\"acp_tt\").get()"}',
-//                'debug'        => true,
-            ]);
-
-            return array_merge(json_decode($response->getBody()->getContents(), TRUE), $requestLog);
-        } catch (GuzzleException $e) {
-            return array_merge([
-                'errcode' => '-100000',
-                'errmsg'  => $e->getMessage() . PHP_EOL . $e->getTraceAsString(),
-            ], $requestLog);
-        }
-    }
-
-    protected function error($errCode, $errMsg)
-    {
-        return [
-            'errcode' => $errCode,
-            'errmsg'  => $errMsg,
-        ];
-    }
-
     /**
      * 创建字段处理类实例
      * @return DbField 字段处理类
@@ -225,14 +174,6 @@ class Db
             self::$dbConditiion = new DbCondition();
         }
         return self::$dbConditiion;
-    }
-
-    private function getClient()
-    {
-        if (self::$client == NULL) {
-            self::$client = new Client();
-        }
-        return self::$client;
     }
 
     private function getDbData()

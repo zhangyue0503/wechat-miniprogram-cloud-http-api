@@ -7,7 +7,6 @@ use zyblog\wxMpCloudHttpApi\Config;
 
 class Cf
 {
-    use Config;
 
     private $env;
     private $accessToken;

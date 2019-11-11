@@ -22,7 +22,7 @@ class DbCollection extends Db
         if (!$name) {
             return $this->error('-100001', '参数错误：集合名称不能为空');
         }
-        return $this->DbPostReqeust(Config::$DATABASE_COLLECTION_ADD, [
+        return $this->postReqeust(Config::$DATABASE_COLLECTION_ADD, [
             'collection_name' => $name,
         ]);
     }
@@ -37,7 +37,7 @@ class DbCollection extends Db
         if (!$name) {
             return $this->error('-100001', '参数错误：集合名称不能为空');
         }
-        return $this->DbPostReqeust(Config::$DATABASE_COLLECTION_DELETE, [
+        return $this->postReqeust(Config::$DATABASE_COLLECTION_DELETE, [
             'collection_name' => $name,
         ]);
     }
@@ -56,7 +56,7 @@ class DbCollection extends Db
         if (!is_int($offset) || $offset < 0) {
             return $this->error('-100001', '参数错误：偏移量必须为数字且不能小于0');
         }
-        return $this->DbPostReqeust(Config::$DATABASE_COLLECTION_GET, [
+        return $this->postReqeust(Config::$DATABASE_COLLECTION_GET, [
             'limit'  => (int)$limit,
             'offset' => (int)$offset,
         ]);
@@ -74,7 +74,7 @@ class DbCollection extends Db
     public function get($where = [], $orWhere = [], $limit = [], $orderBy = [], $field = [])
     {
         $query = $this->where($where, $orWhere)->orderBy($orderBy)->limit($limit)->field($field)->getQuery()->query();
-        return $this->DbPostReqeust(Config::$DATABASE_QUERY, [
+        return $this->postReqeust(Config::$DATABASE_QUERY, [
             'query' => $query,
         ]);
     }
@@ -89,7 +89,7 @@ class DbCollection extends Db
         $query = $this->query();
         $query .= '.add({data:' . (is_string($data) ? $data : $this->data($data)) . '})';
 
-        return $this->DbPostReqeust(Config::$DATABASE_ADD, [
+        return $this->postReqeust(Config::$DATABASE_ADD, [
             'query' => $query,
         ]);
     }
@@ -106,7 +106,7 @@ class DbCollection extends Db
         $query = $this->where($where, $orWhere)->query();
         $query .= '.update({data:{' . (is_string($data) ? $data : $this->data($data)) . '}})';
 
-        return $this->DbPostReqeust(Config::$DATABASE_UPDATE, [
+        return $this->postReqeust(Config::$DATABASE_UPDATE, [
             'query' => $query,
         ]);
     }
@@ -122,7 +122,7 @@ class DbCollection extends Db
         $query = $this->where($where, $orWhere)->query();
         $query .= '.remove()';
 
-        return $this->DbPostReqeust(Config::$DATABASE_DELETE, [
+        return $this->postReqeust(Config::$DATABASE_DELETE, [
             'query' => $query,
         ]);
     }
@@ -138,7 +138,7 @@ class DbCollection extends Db
         $query = $this->where($where, $orWhere)->query();
         $query .= '.count()';
 
-        return $this->DbPostReqeust(Config::$DATABASE_COUNT, [
+        return $this->postReqeust(Config::$DATABASE_COUNT, [
             'query' => $query,
         ]);
     }

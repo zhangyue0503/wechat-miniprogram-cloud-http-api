@@ -14,19 +14,19 @@ class DbDoc extends Db
 {
     /**
      * 获得文档内容
-     * @param $fields
+     * @param array $fields 字段数组
      * @return array
      */
-    public function get($fields = []){
+    public function get(array $fields = []){
         $query = $this->field($fields)->getQuery()->query();
-        return $this->DbPostReqeust(Config::$DATABASE_QUERY, [
+        return $this->postReqeust(Config::$DATABASE_QUERY, [
             'query' => $query,
         ]);
     }
 
     /**
      * 修改文档
-     * @param $data 文档内容
+     * @param $data 文档内容，可以是字符串或字段数组
      * @return array
      */
     public function update($data)
@@ -34,7 +34,7 @@ class DbDoc extends Db
         $query = $this->query();
         $query .= '.update({data:' . (is_string($data) ? $data : $this->data($data)) . '})';
 
-        return $this->DbPostReqeust(Config::$DATABASE_UPDATE, [
+        return $this->postReqeust(Config::$DATABASE_UPDATE, [
             'query' => $query,
         ]);
     }
@@ -42,7 +42,7 @@ class DbDoc extends Db
     /**
      * 修改或新增文档
      * 如果doc(id)不存在，新建
-     * @param $data
+     * @param $data 文档内容，可以是字符串或字段数组
      * @return array
      */
     public function set($data)
@@ -50,14 +50,13 @@ class DbDoc extends Db
         $query = $this->query();
         $query .= '.set({data:' . (is_string($data) ? $data : $this->data($data)) . '})';
 
-        return $this->DbPostReqeust(Config::$DATABASE_UPDATE, [
+        return $this->postReqeust(Config::$DATABASE_UPDATE, [
             'query' => $query,
         ]);
     }
 
     /**
      * 删除文档
-     * @param $data
      * @return array
      */
     public function remove()
@@ -65,7 +64,7 @@ class DbDoc extends Db
         $query = $this->query();
         $query .= '.remove()';
 
-        return $this->DbPostReqeust(Config::$DATABASE_DELETE, [
+        return $this->postReqeust(Config::$DATABASE_DELETE, [
             'query' => $query,
         ]);
     }

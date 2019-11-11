@@ -6,6 +6,7 @@ namespace zyblog\wxMpCloudHttpApi;
 
 use zyblog\wxMpCloudHttpApi\callFunction\Cf;
 use zyblog\wxMpCloudHttpApi\database\DbCollection;
+use zyblog\wxMpCloudHttpApi\store\Store;
 
 class CloudApi
 {
@@ -14,6 +15,7 @@ class CloudApi
 
     private static $callFunction;
     private static $collection;
+    private static $store;
 
     /**
      * 微信云服务开发
@@ -41,7 +43,7 @@ class CloudApi
     /**
      * 数据库操作
      * @param $collectionName 集合名称
-     * @return DbCollection
+     * @return DbCollection 数据库操作对象
      */
     public function collection($collectionName){
         if(self::$collection == NULL){
@@ -51,8 +53,14 @@ class CloudApi
         return self::$collection;
     }
 
-    // 文件存储
-    public static function store(){
-
+    /**
+     * 文件存储
+     * @return Store 文件操作对象
+     */
+    public function store(){
+        if(self::$store == NULL){
+            self::$store = new Store($this->env, $this->accessToken);
+        }
+        return self::$store;
     }
 }
