@@ -2,11 +2,17 @@
 
 namespace zyblog\wxMpCloudHttpApi\callFunction;
 
-use GuzzleHttp\Client;
+use zyblog\wxMpCloudHttpApi\Common;
 use zyblog\wxMpCloudHttpApi\Config;
 
+/**
+ * 云函数调用相关操作
+ * Class Cf
+ * @package zyblog\wxMpCloudHttpApi\callFunction
+ */
 class Cf
 {
+    use Common;
 
     private $env;
     private $accessToken;
@@ -17,17 +23,23 @@ class Cf
         $this->accessToken = $accessToken;
     }
 
-    public function call($name, $postBody)
+    /**
+     * 云函数调用
+     * @param $name 云函数名称
+     * @param string $postBody 云函数参数 {"a":1, "b":2}
+     * @return array
+     */
+    public function call($name, $postBody = '{}')
     {
-        $client = new Client();
-        $response = $client->request('POST', Config::$callFunctionApi, [
-            'query' => [
-                'env'          => $this->env,
-                'access_token' => $this->accessToken,
-                'name'         => $name,
-            ],
-            'body'  => is_string($postBody) ? $postBody : json_encode($postBody, JSON_UNESCAPED_UNICODE),
-        ]);
+        if (!$name || !$postBody) {
+            return $this->error(-100000, "方法名不能为空，空参数不能为''空字符串，默认为'{}'！");
+        }
 
+        $queryParams = [
+            'name' => $name,
+            'env'  => $this->env,
+        ];
+
+        return $this->postReqeust(Config::$CALL_FUNCTION, $postBody, $queryParams, FALSE);
     }
 }

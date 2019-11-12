@@ -4,7 +4,11 @@ namespace zyblog\wxMpCloudHttpApi;
 
 class Config
 {
-    public static $callFunctionApi = 'https://api.weixin.qq.com/cgi-bin/token';
+    public static $ACCESS_TOKEN = 'https://api.weixin.qq.com/cgi-bin/token';
+
+    public static $CALL_FUNCTION = 'https://api.weixin.qq.com/tcb/invokecloudfunction';
+
+    public static $Q_CLOUD_TOKEN = 'https://api.weixin.qq.com/tcb/getqcloudtoken';
 
     public static $UPLOAD_FILE = 'https://api.weixin.qq.com/tcb/uploadfile';
     public static $BATCH_DOWNLOAD_FILE = 'https://api.weixin.qq.com/tcb/batchdownloadfile';

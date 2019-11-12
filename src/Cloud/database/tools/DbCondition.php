@@ -40,28 +40,6 @@ class DbCondition extends DbToolsBase
         return $whereString;
     }
 
-//    /**
-//     * where条件参数组合
-//     * @param $wheres
-//     * @return array
-//     */
-//    private function loopWhere($wheres)
-//    {
-//        $whereObjs = [];
-//        foreach ($wheres as $k => $v) {
-//            // 拆解字段值
-//            list($field, $operator) = explode(' ', $k);
-//            $operator = $operator ?: '[=]';
-//            $value = $v;
-//            if (is_array($value) && !in_array($operator, ['[nin]', '[in]', '[reg]', '[geoNear]', '[geoWithin]', '[geoIntersects]', '[_eq]', '[all]', '[elemMatch]', '[and]', '[or]', '[nor]'])) {
-//                $whereObjs[] = $this->CompositeWhere($field, $value);
-//            } else {
-//                $whereObjs[] = $this->Operator($field, $value, $operator);
-//            }
-//        }
-//        return $whereObjs;
-//    }
-
     /**
      * 操作符解析
      * @param $field 字段名

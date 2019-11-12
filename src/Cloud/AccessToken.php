@@ -12,41 +12,34 @@ use GuzzleHttp\Exception\GuzzleException;
  */
 class AccessToken
 {
-    public static function getWxAccessToken($appid, $secret)
+    use Common;
+
+    /**
+     * 获取AccessToken
+     * @param $appid 微信Appid
+     * @param $secret 微信私钥
+     * @return array
+     */
+    public function getWxAccessToken($appid, $secret)
     {
-        $returnRes = [
-            'err_code'     => '0',
-            'access_token' => '',
-            'error_msg'    => '',
-        ];
         if (!$appid || !$secret) {
-            return $returnRes;
+            return $this->error(-100000, "微信appid及secret不能为空！");
         }
+        $query = [
+            'grant_type' => 'client_credential',
+            'appid'      => $appid,
+            'secret'     => $secret,
+        ];
+        $requestLog = $this->getRequestLog(Config::$ACCESS_TOKEN, ['query' => $query]);
+
         try {
             $client = new Client();
-            $response = $client->request('GET', 'https://api.weixin.qq.com/cgi-bin/token', [
-                'query' => [
-                    'grant_type' => 'client_credential',
-                    'appid'      => $appid,
-                    'secret'     => $secret,
-                ],
+            $response = $client->request('GET', Config::$ACCESS_TOKEN, [
+                'query' => $query,
             ]);
-            $res = json_decode($response->getBody()->getContents(), TRUE);
-            if (isset($res['access_token'])) {
-                $returnRes['access_token'] = $res['access_token'];
-            } else {
-                if (isset($res['errmsg']) && isset($res['errcode'])) {
-                    $returnRes['err_code'] = $res['errcode'];
-                    $returnRes['error_msg'] = $res['errmsg'];
-                } else {
-                    $returnRes['err_code'] = "-2";
-                    $returnRes['error_msg'] = "接口返回值异常：" . $response->getBody()->getContents();
-                }
-            }
+            return array_merge(json_decode($response->getBody()->getContents(), TRUE), $requestLog);
         } catch (GuzzleException $e) {
-            $returnRes['err_code'] = "-100000";
-            $returnRes['error_msg'] = "请求失败：" . $e->getMessage() . PHP_EOL . $e->getTraceAsString();
+            return array_merge($this->error(-100001, '请求失败：' . $e->getMessage() . PHP_EOL . $e->getTraceAsString()), $requestLog);
         }
-        return $returnRes;
     }
 }

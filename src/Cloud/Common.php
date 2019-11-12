@@ -35,17 +35,19 @@ trait Common
      * @param $url 请求url
      * @param array $bodyParams 请求体内容
      * @param array $queryParams 请求参数内容
+     * @param bool $bodyAddEnv body中是否自动添加env
      * @return array 请求结果
      */
-    protected function postReqeust($url, array $bodyParams = [], array $queryParams = [])
+    protected function postReqeust($url, $bodyParams = [], array $queryParams = [], $bodyAddEnv = TRUE)
     {
         $queryParams = array_merge([
             'access_token' => $this->accessToken,
         ], $queryParams);
 
-        $bodyParams = array_merge([
-            'env' => $this->env,
-        ], $bodyParams);
+        $bodyParams = is_string($bodyParams) ? $bodyParams :
+            ($bodyAddEnv ? array_merge([
+                'env' => $this->env,
+            ], $bodyParams) : $bodyParams);
 
         if (!$this->accessToken) {
             return $this->error('-100001', '参数错误：access_token接口调用凭证不能为空');
@@ -59,16 +61,19 @@ trait Common
             'query_params' => $queryParams,
         ]);
         try {
-            $client = $this->getClient();
-            $response = $client->request('POST', $url, [
+            $options = is_string($bodyParams) ? [
                 'query' => $queryParams,
-                'json'  => $bodyParams, //'{"env":"acp-4ff2bb","query":"db.collection(\"acp_tt\").get()"}',
-//                'debug'        => true,
-            ]);
+                'body'  => $bodyParams,
+            ] : [
+                'query' => $queryParams,
+                'json'  => $bodyParams,
+            ];
+            $client = $this->getClient();
+            $response = $client->request('POST', $url, $options);
 
             return array_merge(json_decode($response->getBody()->getContents(), TRUE), $requestLog);
         } catch (GuzzleException $e) {
-            return array_merge($this->error(-100001, $e->getMessage() . PHP_EOL . $e->getTraceAsString()), $requestLog);
+            return array_merge($this->error(-100001, '请求失败：' . $e->getMessage() . PHP_EOL . $e->getTraceAsString()), $requestLog);
         }
     }
 
