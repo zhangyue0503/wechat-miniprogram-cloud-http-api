@@ -59,6 +59,7 @@ Array
 
 # 使用方式
 
+&nbsp;
 > #### 初始化调用api
 
 ```php
@@ -72,7 +73,8 @@ $accessToken | 接口调用凭证
 
 这两个参数是必须要有的，在微信开发者工具的云开发管理中获取云开发环境ID，通过小程序的appid和appsecret获得接口调用凭证，见下方接口。
 
-> #### 获取AccessToken
+&nbsp;
+> ### 获取AccessToken
 
 很多框架都已经有这个功能，这里就有简单的封装了一下。
 
@@ -87,7 +89,8 @@ $appSecret | 小程序唯一凭证密钥，即 AppSecret
 
 参考微信文档：[https://developers.weixin.qq.com/miniprogram/dev/api-backend/open-api/access-token/auth.getAccessToken.html](https://developers.weixin.qq.com/miniprogram/dev/api-backend/open-api/access-token/auth.getAccessToken.html)
 
-> #### 触发云函数
+&nbsp;
+> ### 触发云函数
 
 ```php
 $cloudApi->callFunction()->call($name, $postBody = '{}');
@@ -138,7 +141,8 @@ $cloudApi->callFunction()->call('add', []);
 
 微信HTTP API文档：[https://developers.weixin.qq.com/miniprogram/dev/wxcloud/reference-http-api/functions/invokeCloudFunction.html](https://developers.weixin.qq.com/miniprogram/dev/wxcloud/reference-http-api/functions/invokeCloudFunction.html)
 
-> #### 获取腾讯云API调用凭证
+&nbsp;
+> ### 获取腾讯云API调用凭证
 
 ```php
 $cloudApi->qToken()->getToken($lifespan = 7200);
@@ -150,8 +154,10 @@ $lifespan | 有效期（单位为秒，最大7200，默认7200）
 
 微信HTTP API文档：[https://developers.weixin.qq.com/miniprogram/dev/wxcloud/reference-http-api/utils/getQcloudToken.html](https://developers.weixin.qq.com/miniprogram/dev/wxcloud/reference-http-api/utils/getQcloudToken.html)
 
+&nbsp;
 > ### 文件操作
 
+&nbsp;
 > ### 数据库操作
 
 
