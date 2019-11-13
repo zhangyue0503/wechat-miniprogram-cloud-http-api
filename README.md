@@ -60,7 +60,7 @@ Array
 # 使用方式
 
 &nbsp;
-> #### 初始化调用api
+> ### 初始化调用api
 
 ```php
 $cloudApi = new CloudApi($env, $accessToken);
@@ -71,7 +71,7 @@ $cloudApi = new CloudApi($env, $accessToken);
 $env | 云开发环境ID
 $accessToken | 接口调用凭证
 
-这两个参数是必须要有的，在微信开发者工具的云开发管理中获取云开发环境ID，通过小程序的appid和appsecret获得接口调用凭证，见下方接口。
+这两个参数是必须要有的，在微信开发者工具的云开发管理中获取云开发环境ID，通过小程序的appid和appsecret获得接口调用凭证，见[获取AccessToken](#获取AccessToken)。
 
 &nbsp;
 > ### 获取AccessToken
