@@ -157,6 +157,114 @@ $lifespan | 有效期（单位为秒，最大7200，默认7200）
 &nbsp;
 > ### 文件操作
 
+#### **上传文件**
+
+```php
+$cloudApi->store()->upload($path, $file);
+```
+
+名称 | 说明
+--- | --- 
+$path | 上传路径，要带文件名，如：test/aaa/a.jpg
+$file | 文件二进制流数据，如：file_get_contents('a.jpg')
+
+文件上传的上传路径中的文件目录需要在微信开发者工具云开发管理中创建，路径错误无法上传。
+
+文件上传根据文档会提交两次请求，第一次请求获得凭证及file_id，第二次请求正式上传文件。在系统或本地存储中，应保存file_id用于后续的文件下载链接获取及删除操作。
+
+上传路径需要有文件名，例如：
+
+```php
+$cloudApi->store()->upload('test/aaa/a.jpg', file_get_contents('a.jpg')); // 上传到test/aaa/目录下
+$cloudApi->store()->upload('a.jpg', file_get_contents('a.jpg')); // 上传到根目录下
+```
+
+上传成功后返回的结果为：
+
+```php
+
+Array
+(
+    [errcode] => 0
+    [errmsg] => ok
+    [url] => https://cos.ap-shanghai.myqcloud.com……
+    [token] => ……
+    [authorization] => ……
+    [file_id] => cloud://xxxxxxxxx/ass.txt    // 重要，需要保存
+    [cos_file_id] => ……
+    [wmc_request_url] => https://api.weixin.qq.com/tcb/uploadfile
+    [wmc_request_params] => Array
+        (
+            [body_params] => {"env":"xxxxx","path":"ass.txt"}
+            [query_params] => Array
+                (
+                    [access_token] => xxxxxx
+                )
+
+        )
+
+)
+
+```
+
+微信HTTP API文档：[https://developers.weixin.qq.com/miniprogram/dev/wxcloud/reference-http-api/storage/uploadFile.html](https://developers.weixin.qq.com/miniprogram/dev/wxcloud/reference-http-api/storage/uploadFile.html)
+
+#### **获取文件下载链接**
+
+```php
+$cloudApi->store()->download($fileList);
+```
+
+名称 | 说明
+--- | --- 
+$fileList | 文件列表，内部结构格式如下
+
+```php
+$fileList = [
+    [
+        "fileid"=>'xxxxx',
+        "max_age"=>7200
+    ],
+    ……
+];
+```
+
+名称 | 说明
+--- | --- 
+fileid | 文件file_id
+max_age | 下载链接有效期，最大7200
+
+```php
+$cloudApi->store()->download([
+    [
+        "fileid"=>"cloud://xxxxxxx/ass.txt",
+        "max_age"=>7200
+    ]
+]);
+```
+
+返回值参考微信文档。
+
+微信HTTP API文档：[https://developers.weixin.qq.com/miniprogram/dev/wxcloud/reference-http-api/storage/batchDownloadFile.html](https://developers.weixin.qq.com/miniprogram/dev/wxcloud/reference-http-api/storage/batchDownloadFile.html)
+
+#### **删除文件**
+
+```php
+$cloudApi->store()->delete($fileIdList);
+```
+
+名称 | 说明
+--- | --- 
+$fileIdList | 文件ID列表，简单数组格式，['id1', 'id2']
+
+```php
+$cloudApi->store()->delete([
+    "cloud://xxxxxxxxxx/as.jpg",
+]);
+```
+
+微信HTTP API文档：[https://developers.weixin.qq.com/miniprogram/dev/wxcloud/reference-http-api/storage/batchDeleteFile.html](https://developers.weixin.qq.com/miniprogram/dev/wxcloud/reference-http-api/storage/batchDeleteFile.html)
+
 &nbsp;
 > ### 数据库操作
 
