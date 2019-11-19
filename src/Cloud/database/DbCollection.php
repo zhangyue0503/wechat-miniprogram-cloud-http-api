@@ -48,18 +48,22 @@ class DbCollection extends Db
      * @param $offset 位移
      * @return array 参考：https://developers.weixin.qq.com/miniprogram/dev/wxcloud/reference-http-api/database/databaseCollectionGet.html
      */
-    public function getCollections($limit, $offset)
+    public function getCollections($limit = 10, $offset = 0)
     {
-        if (!is_int($limit) || $limit <= 0) {
-            return $this->error('-100001', '参数错误：数量限制必须为数字且不能小于等于0');
+        if (!is_int($limit)) {
+            return $this->error('-100001', '参数错误：数量限制必须为数字');
         }
-        if (!is_int($offset) || $offset < 0) {
-            return $this->error('-100001', '参数错误：偏移量必须为数字且不能小于0');
+        if (!is_int($offset)) {
+            return $this->error('-100001', '参数错误：偏移量必须为数字');
         }
-        return $this->postReqeust(Config::$DATABASE_COLLECTION_GET, [
-            'limit'  => (int)$limit,
-            'offset' => (int)$offset,
-        ]);
+        $page = [];
+        if($limit > 0){
+            $page['limit'] = $limit;
+        }
+        if($offset > 0){
+            $page['offset'] = $offset;
+        }
+        return $this->postReqeust(Config::$DATABASE_COLLECTION_GET, $page);
     }
 
     /**
@@ -87,7 +91,7 @@ class DbCollection extends Db
     public function add($data)
     {
         $query = $this->query();
-        $query .= '.add({data:' . (is_string($data) ? $data : $this->data($data)) . '})';
+        $query .= '.add({data:[' . (is_string($data) ? $data : $this->data($data)) . ']})';
 
         return $this->postReqeust(Config::$DATABASE_ADD, [
             'query' => $query,

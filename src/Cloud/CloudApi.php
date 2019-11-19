@@ -48,7 +48,7 @@ class CloudApi
      * @param $collectionName 集合名称
      * @return DbCollection 数据库操作对象
      */
-    public function collection($collectionName){
+    public function collection($collectionName = ''){
         if(self::$collection == NULL){
             self::$collection = new DbCollection($this->env, $this->accessToken);
         }

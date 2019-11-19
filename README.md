@@ -207,7 +207,8 @@ Array
 
 ```
 
-微信HTTP API文档：[https://developers.weixin.qq.com/miniprogram/dev/wxcloud/reference-http-api/storage/uploadFile.html](https://developers.weixin.qq.com/miniprogram/dev/wxcloud/reference-http-api/storage/uploadFile.html)
+微信HTTP API文档：
+[https://developers.weixin.qq.com/miniprogram/dev/wxcloud/reference-http-api/storage/uploadFile.html](https://developers.weixin.qq.com/miniprogram/dev/wxcloud/reference-http-api/storage/uploadFile.html)
 
 #### **获取文件下载链接**
 
@@ -245,7 +246,8 @@ $cloudApi->store()->download([
 
 返回值参考微信文档。
 
-微信HTTP API文档：[https://developers.weixin.qq.com/miniprogram/dev/wxcloud/reference-http-api/storage/batchDownloadFile.html](https://developers.weixin.qq.com/miniprogram/dev/wxcloud/reference-http-api/storage/batchDownloadFile.html)
+微信HTTP API文档：
+[https://developers.weixin.qq.com/miniprogram/dev/wxcloud/reference-http-api/storage/batchDownloadFile.html](https://developers.weixin.qq.com/miniprogram/dev/wxcloud/reference-http-api/storage/batchDownloadFile.html)
 
 #### **删除文件**
 
@@ -263,9 +265,134 @@ $cloudApi->store()->delete([
 ]);
 ```
 
-微信HTTP API文档：[https://developers.weixin.qq.com/miniprogram/dev/wxcloud/reference-http-api/storage/batchDeleteFile.html](https://developers.weixin.qq.com/miniprogram/dev/wxcloud/reference-http-api/storage/batchDeleteFile.html)
+微信HTTP API文档：
+[https://developers.weixin.qq.com/miniprogram/dev/wxcloud/reference-http-api/storage/batchDeleteFile.html](https://developers.weixin.qq.com/miniprogram/dev/wxcloud/reference-http-api/storage/batchDeleteFile.html)
 
 &nbsp;
 > ### 数据库操作
+
+重头戏来了，微信云使用的是类似于MongoDb的文档式数据库，但HTTP API提供的能力并不完全，比如不支持聚合等一些函数，所以相关函数的使用请尝试使用云函数进行开发。
+
+#### **集合操作**
+
+```php
+// 获取集合列表
+$cloudApi->db()->getConnections($limit, $offset);
+```
+名称 | 说明
+--- | --- 
+$limit | 集合数量，可选，默认10
+$offset | 偏移量，可选
+
+微信HTTP API文档：
+[https://developers.weixin.qq.com/miniprogram/dev/wxcloud/reference-http-api/database/databaseCollectionGet.html](https://developers.weixin.qq.com/miniprogram/dev/wxcloud/reference-http-api/database/databaseCollectionGet.html)
+
+```php
+// 添加集合
+$cloudApi->collection()->createCollections($name);
+```
+名称 | 说明
+--- | --- 
+$name | 集合名称，必填
+
+微信HTTP API文档：
+[https://developers.weixin.qq.com/miniprogram/dev/wxcloud/reference-http-api/database/databaseCollectionAdd.html](https://developers.weixin.qq.com/miniprogram/dev/wxcloud/reference-http-api/database/databaseCollectionAdd.html)
+
+```php
+// 删除集合
+$cloudApi->collection()->deleteCollections($name);
+```
+
+名称 | 说明
+--- | --- 
+$name | 集合名称，必填
+
+微信HTTP API文档：
+[https://developers.weixin.qq.com/miniprogram/dev/wxcloud/reference-http-api/database/databaseCollectionDelete.html](https://developers.weixin.qq.com/miniprogram/dev/wxcloud/reference-http-api/database/databaseCollectionDelete.html)
+
+#### **集合添加操作**
+
+```php
+$cloudApi->collection($collectionName)->add($data);
+```
+
+名称 | 说明
+--- | --- 
+$collectionName | 集合名称
+$data | 添加的内容，可以是数组键值对形式内容，也可以是自己准备好的字符串
+
+```php
+$data = [
+[
+    'title'=>'测试1',
+    'sort' => 1,
+    'content'=>'测试1的内容',
+    'class' => [
+        'cid' => 1,
+        'name' => '文章',
+    ]
+],
+……
+]
+```
+
+如上代码所示，可以多条同时插入。
+
+```php
+$data = '{title:\"测试4\",sort:4,content:\"测试4的内容\",class:{cid:2,name:\"百科\"}}';
+```
+
+也可以是自己组装好的字符串，如果是多条插入，不用加[]，如下所示：
+
+```php
+$data = '{xxxx},{xxxx}';
+```
+
+示例：
+
+```php
+// 数组形式添加多条数据
+$cloudApi->collection('test-2019')->add([
+    [
+        'title'=>'测试1',
+        'sort' => 1,
+        'content'=>'测试1的内容',
+        'class' => [
+            'cid' => 1,
+            'name' => '文章',
+        ]
+    ],
+    [
+        'title'=>'测试2',
+        'sort' => 2,
+        'content'=>'测试2的内容',
+        'class' => [
+            'cid' => 2,
+            'name' => '百科',
+        ]
+    ],
+]);
+
+// 数组形式添加单条数据
+$cloudApi->collection('test-2019')->add([
+    [
+        'title'=>'测试3',
+        'sort' => 3,
+        'content'=>'测试3的内容',
+        'class' => [
+            'cid' => 2,
+            'name' => '百科',
+        ]
+    ],
+]);
+
+// 字符串形式添加数据
+$cloudApi->collection('test-2019')->add('{title:\"测试4\",sort:4,content:\"测试4的内容\",class:{cid:2,name:\"百科\"}}');
+
+```
+
+#### **集合修改操作**
+
+
 
 
