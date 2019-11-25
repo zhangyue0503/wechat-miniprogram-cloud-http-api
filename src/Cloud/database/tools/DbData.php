@@ -54,13 +54,13 @@ class DbData extends DbToolsBase
             case '[mul]':
                 $value = '_.mul(' . $value . ')';
                 break;
-            case '[min]':
+            case '[min]': // cannot get property 'min'
                 $value = '_.min(' . $value . ')';
                 break;
-            case '[max]':
+            case '[max]': // cannot get property 'max'
                 $value = '_.max(' . $value . ')';
                 break;
-            case '[rename]':
+            case '[rename]': // cannot get property 'rename'
                 $value = '_.rename(\"' . $value . '\")';
                 break;
             case '[push]':

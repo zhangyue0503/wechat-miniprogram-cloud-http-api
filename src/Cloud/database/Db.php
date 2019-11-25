@@ -1,6 +1,7 @@
 <?php
 
 namespace zyblog\wxMpCloudHttpApi\database;
+
 use zyblog\wxMpCloudHttpApi\Common;
 use zyblog\wxMpCloudHttpApi\database\tools\DbCondition;
 use zyblog\wxMpCloudHttpApi\database\tools\DbData;
@@ -74,36 +75,42 @@ class Db
         return $this->queryString;
     }
 
-    public function setQuery($queryString){
+    public function setQuery($queryString)
+    {
         $this->queryString = $queryString;
         return $this;
     }
 
-    public function execute($url){
+    public function execute($url)
+    {
         return $this->postReqeust($url, [
             'query' => $this->queryString,
-        ],[]);
+        ], []);
     }
 
     public function where($where = [], $orWhere = [])
     {
+        $this->queryString .= ".where(_.and([";
         $condition = $this->getDbConditionInstance();
+        $dot = '';
         if (is_array($where) && count($where) > 0) {
-            $this->queryString .= ".where({" . $condition->where($where) . "})";
+            $this->queryString .= "{" . $condition->where($where) . "}";
+            $dot = ',';
         } else if (is_string($where) && $where) {
-            $this->queryString .= ".where({" . $where . "})";
+            $this->queryString .= $where;
+            $dot = ',';
         }
-        if (is_array($where) && count($orWhere) > 0) {
-            $this->queryString .= ".where(_.or(";
+        if (is_array($orWhere) && count($orWhere) > 0) {
+            $this->queryString .= $dot . "_.or([";
             $orString = [];
             foreach ($orWhere as $orw) {
-                $orString[] = '{' . $condition->where([$orw]) . '}';
+                $orString[] = '{' . $condition->where($orw) . '}';
             }
-            $this->queryString .= implode(',', $orString) . "))";
+            $this->queryString .= implode(',', $orString) . "])";
         } else if (is_string($orWhere) && $orWhere) {
-            $this->queryString .= ".where(_.or(" . $orWhere . "))";
+            $this->queryString .= $dot . "_.or(" . $orWhere . ")";
         }
-
+        $this->queryString .= "]))";
         return $this;
     }
 
@@ -118,7 +125,8 @@ class Db
         return $this;
     }
 
-    public function data($data){
+    public function data($data)
+    {
         $dbData = $this->getDbData();
         return $dbData->data($data);
     }
@@ -141,11 +149,9 @@ class Db
     {
         if (is_array($orderBys) && count($orderBys) > 0) {
             foreach ($orderBys as $o) {
-                if (is_array($o) && count($o) == 2) {
-                    list($fieldName, $order) = explode(' ', $o);
-                    if (!$order) $order = 'asc';
-                    $this->queryString .= '.orderBy("' . $fieldName . '", "' . $order . '")';
-                }
+                list($fieldName, $order) = explode(' ', $o);
+                if (!$order) $order = 'asc';
+                $this->queryString .= '.orderBy("' . $fieldName . '", "' . $order . '")';
             }
         }
         return $this;

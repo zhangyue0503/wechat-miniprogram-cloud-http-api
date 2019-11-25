@@ -68,11 +68,11 @@ class DbCollection extends Db
 
     /**
      * 集合查询
-     * @param array $where [["key",value=array,string,number],]
-     * @param array $orWhere [["key",value=array,string,number],]
+     * @param array $where ["key [...]" => (value=array,string,number),……]
+     * @param array $orWhere [["key [...]" => (value=array,string,number)],……]
      * @param array $limit [10, 1]
-     * @param array $orderBy ["id desc",]
-     * @param array $field []
+     * @param array $orderBy ["id desc",……]
+     * @param array $field [……]
      * @return mixed
      */
     public function get($where = [], $orWhere = [], $limit = [], $orderBy = [], $field = [])

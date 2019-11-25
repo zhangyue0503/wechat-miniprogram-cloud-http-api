@@ -393,6 +393,225 @@ $cloudApi->collection('test-2019')->add('{title:\"测试4\",sort:4,content:\"测
 
 #### **集合修改操作**
 
+```php
+$cloudApi->collection($collectionName)->update($data, $where = [], $orWhere = []);
+```
+
+名称 | 说明
+--- | --- 
+$collectionName | 集合名称
+$data | 添加的内容，可以是数组键值对形式内容，也可以是自己准备好的字符串
+$where | where条件，支持语法与查询相同，参考查询操作
+$orWhere | orWhere条件，支持语法与查询，参考查询操作
+
+下例将title=测试3的数据的sort改为4，并把class里面的cid改为1，name改为文章
+
+```php
+$cloudApi->collection('test-20191119')->update([
+    'sort' => 4,
+    'class' => [
+            'cid' => 1,
+            'name' => '文章',
+        ]
+], [
+    'title'=>'测试3',
+]);
+```
+
+如果不给where条件，则集合中所有数据都更新，与MySQL类似
+
+**更新操作支持函数操作**
+
+- set
+
+```php
+$cloudApi->collection('test-20191119')->update([
+    'class [set]' => [
+            'cid' => 3,
+            'name' => '文章2',
+        ]
+], [
+    'title'=>'测试3',
+]);
+```
+
+[小程序文档](https://developers.weixin.qq.com/miniprogram/dev/wxcloud/reference-sdk-api/database/command/Command.set.html)
+
+- remove
+
+```php
+$cloudApi->collection('test-20191119')->update([
+    'content [remove]' => 1
+], [
+    'title'=>'测试3',
+]);
+```
+
+值并没有特殊意义，会根据key值判断这个key中是否有remove操作，也就是说这里的值可以给任意内容
+
+[小程序文档](https://developers.weixin.qq.com/miniprogram/dev/wxcloud/reference-sdk-api/database/command/Command.remove.html)
+
+- inc
+
+```php
+$cloudApi->collection('test-20191119')->update([
+    'sort [inc]' => 1
+], [
+    'title'=>'测试3',
+]);
+```
+
+值表示增加数，必须数字类型，负数表示为减操作，例如当前sort为4，则加1后为5，或使用-2后为2
+
+[小程序文档](https://developers.weixin.qq.com/miniprogram/dev/wxcloud/reference-sdk-api/database/command/Command.inc.html)
+
+- mul
+
+```php
+$cloudApi->collection('test-20191119')->update([
+    'sort [mul]' => 2
+], [
+    'title'=>'测试3',
+]);
+```
+
+与inc类似，但注意数学运算规则，如果给负数或者本身数据为负数，则乘积都为负数
+
+[小程序文档](https://developers.weixin.qq.com/miniprogram/dev/wxcloud/reference-sdk-api/database/command/Command.mul.html)
+
+- push
+
+```php
+$cloudApi->collection('test-20191119')->update([
+    'tags [push]' => [
+        "each" =>[["app"=>"aaa", "ppa"=>2], ["app"=>"bbb", "ppa"=>5]],
+        "sort" => ["ppa" => 1],
+        "position" => 1,
+        "slice" => -2
+    ],
+], [
+    'title'=>'测试3',
+]);
+```
+
+数组操作能力，详情查看文档，支持文档中的参数写法。
+
+[小程序文档](https://developers.weixin.qq.com/miniprogram/dev/wxcloud/reference-sdk-api/database/command/Command.push.html)
+
+- pop
+
+```php
+$cloudApi->collection('test-20191119')->update([
+    'tags [pop]' => 1,
+], [
+    'title'=>'测试3',
+]);
+```
+
+[小程序文档](https://developers.weixin.qq.com/miniprogram/dev/wxcloud/reference-sdk-api/database/command/Command.pop.html)
+
+- unshift
+
+```php
+$cloudApi->collection('test-20191119')->update([
+    'tags [unshift]' => [1122,333,444,'fff'],
+], [
+    'title'=>'测试3',
+]);
+```
+
+[小程序文档](https://developers.weixin.qq.com/miniprogram/dev/wxcloud/reference-sdk-api/database/command/Command.unshift.html)
+
+- shift
+
+```php
+$cloudApi->collection('test-20191119')->update([
+    'tags [shift]' => 1,
+], [
+    'title'=>'测试3',
+]);
+```
+
+[小程序文档](https://developers.weixin.qq.com/miniprogram/dev/wxcloud/reference-sdk-api/database/command/Command.shift.html)
+
+#### **集合删除操作**
+
+```php
+$cloudApi->collection($collectionName)->delete($where = [], $orWhere = []);
+```
+
+名称 | 说明
+--- | --- 
+$collectionName | 集合名称
+$where | where条件，支持语法与查询相同，参考查询操作
+$orWhere | orWhere条件，支持语法与查询，参考查询操作
+
+下例将删除title=测试4
+
+```php
+$cloudApi->collection('test-20191119')->delete([
+    'title'=>'测试4',
+]);
+```
+
+如果不给where条件，则集合中所有数据都删除，与MySQL类似
+
+#### **集合查询操作**
+
+```php
+$cloudApi->collection($collectionName)->get($where, $orWhere, $limit, $orderBy, $field);
+```
+
+名称 | 说明
+--- | --- 
+$collectionName | 集合名称
+$where | where条件，["key [...]" => (value=array,string,number),……]
+$orWhere | orWhere条件，[["key [...]" => (value=array,string,number)],……]，注意orWhere是二维数组
+$limit | 分页，[$limit, $offset]
+$orderBy | 排序，["key asc|desc", ……]
+$field | 查询字段名，["key", ……]
+
+查询操作所有的条件都不是必须的，没有任何条件将返回全部的文档列表，在这些参数中主要是where条件的支持语法比较多，我们先看一个实例：
+
+```php
+
+$where = [
+    "sort [>]" => 1,
+];
+$orWhere = [
+    ["title" => '测试2'],
+    ["title" => '测试3'],
+];
+$limit = [10, 0];
+$orderBy = ['sort asc', 'class.cid desc'];
+$field = ["class.name", "content", "sort", "title"];
+$cloudApi->collection('test-20191119')->get($where, $orWhere, $limit, $orderBy, $field);
+
+// 组合而成的postBody
+// {"env":"acp-xxx","query":"db.collection(\"test-20191119\").where(_.and([{sort:_.gt(10)},_.or([{title:\"测试2\"},{title:\"测试3\"}])])).rBy(\"sort\",\"asc\").orderBy(\"cid\", \"desc\").limit(10).skip(0).field({class:{name:true},content:true,sort:true,title:true}).get()"}
+
+```
+
+上述实例中各项说明为：
+- $where：sort 大于 1 的
+- $orWhere：title 等于 测试2 或者 测试3 的
+- $limit：从0开始的10条数据
+- $orderBy：按照 sort 正序并且 class.cid 倒序
+- $field：显示指定的 class.name 、 content 、 sort 、 title 字段
+
+**where与orWhere所支持的函数操作**
+
+**关于orWhere条件的问题**
+
+**关于字段名的点操作**
+
+
+
+
+
+
+
+
 
 
 
