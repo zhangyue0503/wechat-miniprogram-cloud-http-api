@@ -90,27 +90,36 @@ class Db
 
     public function where($where = [], $orWhere = [])
     {
-        $this->queryString .= ".where(_.and([";
+        $whereString = ".where(";
         $condition = $this->getDbConditionInstance();
         $dot = '';
+        $hasWhere = false;
         if (is_array($where) && count($where) > 0) {
-            $this->queryString .= "{" . $condition->where($where) . "}";
+            $whereString .= "_.and([{" . $condition->where($where) . "}";
             $dot = ',';
+            $hasWhere = true;
         } else if (is_string($where) && $where) {
-            $this->queryString .= $where;
+            $whereString .= "_.and([" . $where;
             $dot = ',';
+            $hasWhere = true;
         }
         if (is_array($orWhere) && count($orWhere) > 0) {
-            $this->queryString .= $dot . "_.or([";
+            $whereString.= $dot . "_.or([";
             $orString = [];
             foreach ($orWhere as $orw) {
                 $orString[] = '{' . $condition->where($orw) . '}';
             }
-            $this->queryString .= implode(',', $orString) . "])";
+            $whereString .= implode(',', $orString) . "])";
+            $hasWhere = true;
         } else if (is_string($orWhere) && $orWhere) {
-            $this->queryString .= $dot . "_.or(" . $orWhere . ")";
+            $whereString .= $dot . "_.or(" . $orWhere . ")";
+            $hasWhere = true;
         }
-        $this->queryString .= "]))";
+
+        $whereString .= ($hasWhere ? '])' : '') . ")";
+        if($hasWhere){
+            $this->queryString .= $whereString;
+        }
         return $this;
     }
 

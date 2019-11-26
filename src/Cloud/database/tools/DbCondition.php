@@ -11,7 +11,7 @@ namespace zyblog\wxMpCloudHttpApi\database\tools;
 class DbCondition extends DbToolsBase
 {
 
-    private $extrinsicOperator = ['[nin]', '[in]', '[reg]', '[geoNear]', '[geoWithin]', '[geoIntersects]', '[_eq]', '[all]', '[elemMatch]', '[and]', '[or]', '[nor]'];
+    private $extrinsicOperator = ['[nin]', '[not in]', '[in]', '[reg]', '[geoNear]', '[geoWithin]', '[geoIntersects]', '[_eq]', '[all]', '[elemMatch]', '[and]', '[or]', '[nor]'];
 
     /**
      * where条件组合
@@ -49,8 +49,8 @@ class DbCondition extends DbToolsBase
      */
     protected function operator($field, $value, $operator)
     {
-        if (is_string($value)) {
-            $value = addslashes($value);
+        if (gettype($value) == 'string') {
+            $value = '"' . addslashes($value) . '"';
         }
         if (is_array($value)) {
             array_map(function (&$v) {
@@ -63,7 +63,6 @@ class DbCondition extends DbToolsBase
         switch ($operator) {
             case '[eq]':
             case '[=]':
-                $value = gettype($value) != 'string' ? $value : '"' . $value . '"';
                 break;
             case '[_eq]':
                 $value = '_.eq(' . (is_array($value) ? json_encode($value, JSON_UNESCAPED_UNICODE) : $value) . ')';
@@ -97,10 +96,10 @@ class DbCondition extends DbToolsBase
                 $value = "_.nin(" . json_encode((array)$value, JSON_UNESCAPED_UNICODE) . ")";
                 break;
             case '[like]':
-                $value = "/" . $value . "/im";
+                $value = "/" . trim($value, '"') . "/im";
                 break;
             case '[not like]':
-                $value = "/^" . $value . "/im";
+                $value = "/^" . trim($value, '"') . "/im";
                 break;
             case '[exists]':
                 $value = "_.exists(" . ($value ? 'true' : 'false') . ")";
@@ -109,12 +108,14 @@ class DbCondition extends DbToolsBase
                 $value = "_.size(" . $value . ")";
                 break;
             case '[mod]':
-                $value = "_.mod(" . $value . ")";
+                $value = "_.mod(" . trim($value, '"') . ")";
                 break;
             case '[reg]':
                 if (isset($value['regexp'])) {
-                    $opt = $value['options'] ?: 'im';
-                    $value = "db.RegExp({regexp:\"" . $value['regexp'] . "\", options: \"" . $opt . "\"})";
+                    $options = $value['options'] ?: 'im';
+                    $value = "db.RegExp({regexp:\"" . trim($value['regexp'], '"') . "\", options: \"" . $options . "\"})";
+                }else{
+                    $value = "/" . trim($value, '"') . "/im";
                 }
                 break;
             case '[and]':

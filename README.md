@@ -601,9 +601,124 @@ $cloudApi->collection('test-20191119')->get($where, $orWhere, $limit, $orderBy, 
 
 **where与orWhere所支持的函数操作**
 
+- [=] [eq] 等于
+
+```php
+$where = ['title [=]' => '测试3'];
+$where = ['title [eq]' => '测试3'];
+$where = ['title' => '测试3'];
+```
+
+它们的效果是一致的。
+
+- [_eq] 等于对象
+
+```php
+$where = [
+    "class [_eq]" => [
+        "cid" => 2,
+        "name" => "百科",
+    ],
+];
+```
+
+- [gt] [>] 大于
+
+```php
+$where = ["sort [>]" => 1];
+$where = ["sort [gt]" => 1];
+```
+
+- [gte] [>=] 大于等于
+
+```php
+$where = ["sort [>=]" => 1];
+$where = ["sort [gte]" => 1];
+```
+
+- [lt] [<] 小于
+
+```php
+$where = ["sort [<]" => 30];
+$where = ["sort [lt]" => 30];
+```
+
+- [lte] [<=] 小于等于
+
+```php
+$where = ["sort [<=]" => 30];
+$where = ["sort [lte]" => 30];
+```
+
+- [neq] [!=] [<>] 不等于
+
+```php
+$where = ["title [neq]" => "测试2"];
+$where = ["title [!=]" => "测试2"];
+$where = ["title [<>]" => "测试2"];
+```
+
+- [in] 在集合中
+
+```php
+$where = ["title [in]" => ["测试2", "测试3"]];
+```
+
+- [not in] [nin] 不在集合中
+
+```php
+$where = ["title [not in]" => ["测试2", "测试3"]];
+$where = ["title [nin]" => ["测试2", "测试3"]];
+```
+
+- [like] 模糊匹配
+
+```php
+$where = ["class.name [like]" => "文"];
+```
+
+- [not like] 反向模糊匹配
+
+```php
+$where = ["class.name [not like]" => "文"];
+```
+
+- [exists] 字段存在
+
+```php
+$where = ["tags [exists]" => 1]; // 返回存在tags字段的
+$where = ["tags [exists]" => 0]; // 返回不存在tags字段的
+```
+
+- [size] 数组字段的查询筛选条件，要求数组长度为给定值
+
+```php
+$where = ["tags [size]" => 3]; 
+$where = ["tags [size]" => 4]; 
+```
+
+- [mod] 给定除数 divisor 和余数 remainder，要求字段作为被除数时 value % divisor = remainder
+
+```php
+$where = ["sort [mod]" => "5"]; // 模5为0的
+$where = ["sort [mod]" => "3,1"]; // 模3余1的，测试时出错403错误，微信文档没有给出说明
+```
+
+- [reg] 正则匹配
+
+```php
+
+```
+
+
+
 **关于orWhere条件的问题**
 
 **关于字段名的点操作**
+
+**直接使用自行拼装的字符串**
+
+
 
 
 
