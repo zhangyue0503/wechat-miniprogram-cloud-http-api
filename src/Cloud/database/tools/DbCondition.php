@@ -11,7 +11,7 @@ namespace zyblog\wxMpCloudHttpApi\database\tools;
 class DbCondition extends DbToolsBase
 {
 
-    private $extrinsicOperator = ['[nin]', '[not in]', '[in]', '[reg]', '[geoNear]', '[geoWithin]', '[geoIntersects]', '[_eq]', '[all]', '[elemMatch]', '[and]', '[or]', '[nor]'];
+    private $extrinsicOperator = ['[nin]', '[not in]', '[in]', '[reg]', '[geoNear]', '[geoWithin]', '[geoIntersects]', '[_eq]', '[all]', '[elemMatch]', '[and]', '[or]', '[nor]', '[not]'];
 
     /**
      * where条件组合
@@ -32,10 +32,10 @@ class DbCondition extends DbToolsBase
      */
     protected function composite($f, $w)
     {
-        if(is_numeric($f)){
-            $whereString = '{' . implode(',',$this->loop($w, $this->extrinsicOperator)) . '}';
-        }else{
-            $whereString = $f . ':{' . implode(',',$this->loop($w, $this->extrinsicOperator)) . '}';
+        if (is_numeric($f)) {
+            $whereString = '{' . implode(',', $this->loop($w, $this->extrinsicOperator)) . '}';
+        } else {
+            $whereString = $f . ':{' . implode(',', $this->loop($w, $this->extrinsicOperator)) . '}';
         }
         return $whereString;
     }
@@ -49,9 +49,7 @@ class DbCondition extends DbToolsBase
      */
     protected function operator($field, $value, $operator)
     {
-        if (gettype($value) == 'string') {
-            $value = '"' . addslashes($value) . '"';
-        }
+        $value = $this->getValueTypeString($value);
         if (is_array($value)) {
             array_map(function (&$v) {
                 if (is_string($v)) {
@@ -114,7 +112,7 @@ class DbCondition extends DbToolsBase
                 if (isset($value['regexp'])) {
                     $options = $value['options'] ?: 'im';
                     $value = "db.RegExp({regexp:\"" . trim($value['regexp'], '"') . "\", options: \"" . $options . "\"})";
-                }else{
+                } else {
                     $value = "/" . trim($value, '"') . "/im";
                 }
                 break;
@@ -128,9 +126,14 @@ class DbCondition extends DbToolsBase
                     $value = '_.or(' . $this->where($value) . ')';
                 }
                 break;
-            case '[nor]':
+            case '[nor]':  // cannot get property 'nor'
                 if (is_array($value) && count($value) > 0) {
                     $value = '_.nor([' . $this->where($value) . '])';
+                }
+                break;
+            case '[not]': // cannot get property 'not'
+                if (is_array($value) && count($value) > 0) {
+                    $value = '_.not(' . $this->where($value) . ')';
                 }
                 break;
             case '[elemMatch]':
@@ -146,7 +149,7 @@ class DbCondition extends DbToolsBase
                         if (is_array($v)) {
                             $subs[] = '_.elemMatch({' . $this->where($v) . '})';
                         } else {
-                            $subs[] = '"' . $v . '"';
+                            $subs[] = $this->getValueTypeString($v);
                         }
                     }
                     $value = $resValue . implode(',', $subs) . '])';
@@ -178,4 +181,13 @@ class DbCondition extends DbToolsBase
         }
         return $this->CompositeField($field, $value, $opt);
     }
+
+    private function getValueTypeString($value)
+    {
+        if (gettype($value) == 'string') {
+            $value = '"' . addslashes($value) . '"';
+        }
+        return $value;
+    }
+
 }

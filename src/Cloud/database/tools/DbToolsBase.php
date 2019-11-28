@@ -52,7 +52,12 @@ abstract class DbToolsBase
         foreach ($wheres as $k => $v) {
             // 拆解字段值
             list($field, $operator) = explode(' ', $k, 2);
-            $operator = $operator ?: '[=]';
+            if(preg_match("/\[(.*)?\]/", $field)){
+                $operator = $field;
+                $field = '';
+            }else{
+                $operator = $operator ?: '[=]';
+            }
             $value = $v;
             if (is_array($value) && !in_array($operator, $extrinsicOperator)) {
                 $whereObjs[] = $this->composite($field, $value);

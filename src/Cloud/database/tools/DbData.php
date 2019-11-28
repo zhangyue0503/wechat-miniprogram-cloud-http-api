@@ -21,7 +21,6 @@ class DbData extends DbToolsBase
         } else {
             $dataString = $f . ':{' . implode(',', $this->loop($w, $this->extrinsicOperator)) . '}';
         }
-        echo $dataString, PHP_EOL;
         return $dataString;
     }
 
