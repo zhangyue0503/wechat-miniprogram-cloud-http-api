@@ -313,7 +313,8 @@ $name | 集合名称，必填
 #### **集合添加操作**
 
 ```php
-$cloudApi->collection($collectionName)->add($data);
+$cloudApi->collection($collectionName)->add($data); // 单条
+$cloudApi->collection($collectionName)->addMulite($data); // 多条
 ```
 
 名称 | 说明
@@ -352,7 +353,7 @@ $data = '{xxxx},{xxxx}';
 
 ```php
 // 数组形式添加多条数据
-$cloudApi->collection('test-2019')->add([
+$cloudApi->collection('test-2019')->addMulite([
     [
         'title'=>'测试1',
         'sort' => 1,
@@ -788,23 +789,92 @@ $where = [
 ];
 ```
 
-- []
+- [geoNear] 按从近到远的顺序，找出字段值在给定点的附近的记录 
 
+```php
+$where = [
+    'location [geoNear]' => [
+        'geometry' => '113.323809, 23.097732',
+        'minDistance' => 1000,
+        'maxDistance'=> 5000,
+    ],
+];
+```
 
+字段要加地理位置索引，要在微信开发者工具云开发管理中添加
 
+- [geoWithin] 找出字段值在指定区域内的记录，无排序。指定的区域必须是多边形（Polygon）或多边形集合（MultiPolygon）
 
+```php
+// 多边形
+$where = [
+    'location [geoWithin]' => [
+        'geometry' => 'db.Geo.Polygon([db.Geo.LineString([db.Geo.Point(0, 0),db.Geo.Point(3, 2),db.Geo.Point(2, 3),db.Geo.Point(0, 0)])])',
+    ],
+];
+// 圆形
+$where = [
+    'location [geoWithin]' => [
+        'centerSphere' => '[[113, 23],' . (100 / 6378.1) . ']',
+    ],
+];
+```
 
+- [geoIntersects] 找出给定的地理位置图形相交的记录
 
+```php
+$where = [
+    'location [geoIntersects]' => [
+        'geometry' => 'db.Geo.Polygon([db.Geo.LineString([db.Geo.Point(0, 0),db.Geo.Point(3, 2),db.Geo.Point(2, 3),db.Geo.Point(0, 0)])])',
+    ],
+];
+```
 
+**地理位置字段的添加修改查询说明**
 
+地理位置字段比较灵活，不管添加还是修改查询时，建议直接拼装自己需要的查询语句。具体参考微信文档，这里仅给出示例：
 
+```php
+// 添加一个地理位置字段数据
+$cloudApi->collection('test-20191119')->add([
+    'location'    => [
+        'type'        => 'Point',
+        'coordinates [json]' => [113.222, 23.0002],
+    ],
+]);
+```
 
-**关于orWhere条件的问题**
+**[json] 为特殊标识符，表示该字段下的内容不进行解析，直接转换成json格式数据**
+
+查询操作参考上方where条件中的相关操作
 
 **关于字段名的点操作**
 
+不管是where条件、data字段还是field字段中，我们操作的键名都可以进行点加连接操作：
+
+```php
+[
+    "class.cid" => 2
+]
+// {class:{cid:2}}
+
+[
+    "class.cid [>=]" => 2
+]
+// {class:{cid:_.gte(2)}}
+```
+
 **直接使用自行拼装的字符串**
 
+我们的所有数据库操作还有更简单粗暴的方式，就是直接使用您准备好的查询语句，也就是接口中body部分里面query的内容，例如：
+
+```php
+$cloudApi->collection('test-20191119')->setQuery('db.collection(\"test-20191119\").get()')->execute(\zyblog\wxMpCloudHttpApi\Config::$DATABASE_QUERY);
+
+// {"env":"acp-4ff2bb","query":"db.collection(\"test-20191119\").get()"}
+```
+
+#### **文档操作**
 
 
 

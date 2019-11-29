@@ -91,6 +91,21 @@ class DbCollection extends Db
     public function add($data)
     {
         $query = $this->query();
+        $query .= '.add({data:{' . (is_string($data) ? $data : $this->data($data)) . '}})';
+
+        return $this->postReqeust(Config::$DATABASE_ADD, [
+            'query' => $query,
+        ]);
+    }
+
+    /**
+     * 添加文档 -- 多条添加
+     * @param $data 文档内容
+     * @return array
+     */
+    public function addMulite($data)
+    {
+        $query = $this->query();
         $query .= '.add({data:[' . (is_string($data) ? $data : $this->data($data)) . ']})';
 
         return $this->postReqeust(Config::$DATABASE_ADD, [

@@ -19,7 +19,8 @@ abstract class DbToolsBase
      */
     protected function CompositeField($k, $v, $operator = ':')
     {
-        if (!$k) {
+        if (!$k || is_numeric($k)) {
+            $k = '';
             $operator = '';
         }
         if (strpos(trim($k, '.'), '.')) {
@@ -59,6 +60,7 @@ abstract class DbToolsBase
                 $operator = $operator ?: '[=]';
             }
             $value = $v;
+            $extrinsicOperator = !in_array('[json]', $extrinsicOperator) ? array_merge($extrinsicOperator, ['[json]']) : $extrinsicOperator ;
             if (is_array($value) && !in_array($operator, $extrinsicOperator)) {
                 $whereObjs[] = $this->composite($field, $value);
             } else {

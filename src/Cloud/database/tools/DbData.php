@@ -112,6 +112,9 @@ class DbData extends DbToolsBase
                     $value = '_.pull(' . (gettype($value) == 'string' ? '"' . $value . '"' : $value) . ')';
                 }
                 break;
+            case '[json]':
+                $value = json_encode($value, JSON_UNESCAPED_UNICODE);
+                break;
         }
         return $this->CompositeField($field, $value, $opt);
     }
