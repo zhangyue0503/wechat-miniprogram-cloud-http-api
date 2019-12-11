@@ -178,6 +178,9 @@ class DbCondition extends DbToolsBase
                     $value = 'db.command.geoWithin({centerSphere:' . $value['centerSphere'] . '})';
                 }
                 break;
+            case '[json]':
+                $value = json_encode($value, JSON_UNESCAPED_UNICODE);
+                break;
         }
         return $this->CompositeField($field, $value, $opt);
     }

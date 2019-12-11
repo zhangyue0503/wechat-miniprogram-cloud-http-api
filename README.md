@@ -8,7 +8,7 @@ Composer安装：
 
 ```php
 
-
+composer require zyblog/wx-mp-cloud-http-api
 
 ```
 
@@ -874,7 +874,79 @@ $cloudApi->collection('test-20191119')->setQuery('db.collection(\"test-20191119\
 // {"env":"acp-4ff2bb","query":"db.collection(\"test-20191119\").get()"}
 ```
 
-#### **文档操作**
+#### **文档查询操作**
+
+在获取到文档id的前提下，可以直接使用文档id对单条文档数据进行操作，文档id就是建立文档时自动或指定生成的"_id"字段
+
+```php
+$cloudApi->collection($collectionName)->doc($docId)->get($where, $orWhere, $limit, $orderBy, $field);
+```
+
+名称 | 说明
+--- | --- 
+$collectionName | 集合名称
+$docId | 文档ID
+$where | where条件，["key [...]" => (value=array,string,number),……]
+$orWhere | orWhere条件，[["key [...]" => (value=array,string,number)],……]，注意orWhere是二维数组
+$limit | 分页，[$limit, $offset]
+$orderBy | 排序，["key asc|desc", ……]
+$field | 查询字段名，["key", ……]
+
+```php
+$cloudApi->collection('test-20191119')->doc('392e3683-77c9-44f5-841d-0011847cec85')->get();
+```
+
+#### **文档修改操作**
+
+```php
+$cloudApi->collection($collectionName)->doc($docId)->update($data);
+```
+
+名称 | 说明
+--- | --- 
+$collectionName | 集合名称
+$docId | 文档ID
+$data | 添加的内容，可以是数组键值对形式内容，也可以是自己准备好的字符串
+
+```php
+$cloudApi->collection('test-20191119')->doc('392e3683-77c9-44f5-841d-0011847cec85')->update([
+    "content"=>"测试1的内容111",
+]);
+```
+
+#### **文档替换更新操作**
+
+```php
+$cloudApi->collection($collectionName)->doc($docId)->set($data);
+```
+
+名称 | 说明
+--- | --- 
+$collectionName | 集合名称
+$docId | 文档ID
+$data | 添加的内容，可以是数组键值对形式内容，也可以是自己准备好的字符串
+
+```php
+$cloudApi->collection('test-20191119')->doc('392e3683-77c9-44f5-841d-0011847cec85')->set([
+    "content"=>"测试1的内容111",
+]);
+```
+
+#### **文档删除操作**
+
+```php
+$cloudApi->collection($collectionName)->doc($docId)->remove();
+```
+
+名称 | 说明
+--- | --- 
+$collectionName | 集合名称
+$docId | 文档ID
+```php
+$cloudApi->collection('test-20191119')->doc('392e3683-77c9-44f5-841d-0011847cec85')->remove();
+```
+
+
 
 
 

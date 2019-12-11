@@ -32,7 +32,7 @@ class DbDoc extends Db
     public function update($data)
     {
         $query = $this->query();
-        $query .= '.update({data:' . (is_string($data) ? $data : $this->data($data)) . '})';
+        $query .= '.update({data:{' . (is_string($data) ? $data : $this->data($data)) . '}})';
 
         return $this->postReqeust(Config::$DATABASE_UPDATE, [
             'query' => $query,
@@ -48,7 +48,7 @@ class DbDoc extends Db
     public function set($data)
     {
         $query = $this->query();
-        $query .= '.set({data:' . (is_string($data) ? $data : $this->data($data)) . '})';
+        $query .= '.set({data:{' . (is_string($data) ? $data : $this->data($data)) . '}})';
 
         return $this->postReqeust(Config::$DATABASE_UPDATE, [
             'query' => $query,
