@@ -79,6 +79,19 @@ class CloudApi
     }
 
     /**
+     * 获取微信AccessToken
+     * @param $appid 微信Appid
+     * @param $secret 微信私钥
+     * @return array
+     */
+    public static function getWxAccessToken($appid, $secret){
+        if(self::$token == NULL){
+            self::$token = new AccessToken();
+        }
+        return self::$token->getWxAccessToken($appid, $secret);
+    }
+
+    /**
      * 获取腾讯云API调用凭证
      * @return QqToken
      */
