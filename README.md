@@ -80,6 +80,9 @@ $accessToken | 接口调用凭证
 
 ```php
 $cloudApi->token()->getWxAccessToken($appId, $appSecret);
+
+// 直接使用静态方法获取
+CloudApi::getWxAccessToken($appId, $appSecret);
 ```
 
 名称 | 说明
