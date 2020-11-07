@@ -52,7 +52,13 @@ abstract class DbToolsBase
         $whereObjs = [];
         foreach ($wheres as $k => $v) {
             // 拆解字段值
-            list($field, $operator) = explode(' ', $k, 2);
+            if(strpos($k, ' ')!==false){
+                list($field, $operator) = explode(' ', $k, 2);
+            }else{
+                $field = $k;
+                $operator = '';
+            }
+
             if(preg_match("/\[(.*)?\]/", $field)){
                 $operator = $field;
                 $field = '';
