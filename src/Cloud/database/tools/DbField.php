@@ -56,7 +56,7 @@ class DbField extends DbToolsBase
     }
 
 
-    protected function composite($field, $value)
+    protected function composite($field, $value, $isObj)
     {
         // Nothing
     }

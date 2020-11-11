@@ -14,12 +14,16 @@ class DbData extends DbToolsBase
         return implode(',', $dataObj);
     }
 
-    protected function composite($f, $w)
+    protected function composite($f, $w, $isObj)
     {
         if (is_numeric($f)) {
             $dataString = '{' . implode(',', $this->loop($w, $this->extrinsicOperator)) . '}';
         } else {
-            $dataString = $f . ':{' . implode(',', $this->loop($w, $this->extrinsicOperator)) . '}';
+            if ($isObj) {
+                $dataString = $f . ':{' . implode(',', $this->loop($w, $this->extrinsicOperator)) . '}';
+            } else {
+                $dataString = $f . ':[' . implode(',', $this->loop($w, $this->extrinsicOperator)) . ']';
+            }
         }
         return $dataString;
     }

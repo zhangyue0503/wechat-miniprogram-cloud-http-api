@@ -6,7 +6,7 @@ namespace zyblog\wxMpCloudHttpApi\database\tools;
 
 abstract class DbToolsBase
 {
-    protected abstract function composite($field, $value);
+    protected abstract function composite($field, $value, $isObj);
     protected abstract function operator($field, $value, $operator);
 
     /**
@@ -68,7 +68,11 @@ abstract class DbToolsBase
             $value = $v;
             $extrinsicOperator = !in_array('[json]', $extrinsicOperator) ? array_merge($extrinsicOperator, ['[json]']) : $extrinsicOperator ;
             if (is_array($value) && !in_array($operator, $extrinsicOperator)) {
-                $whereObjs[] = $this->composite($field, $value);
+                if(array_keys($value)===range(0,count($value) - 1)){ // 是否是键值对数组
+                    $whereObjs[] = $this->composite($field, $value, false);
+                }else{
+                    $whereObjs[] = $this->composite($field, $value, true);
+                }
             } else {
                 $whereObjs[] = $this->operator($field, $value, $operator);
             }

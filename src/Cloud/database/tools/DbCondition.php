@@ -30,12 +30,16 @@ class DbCondition extends DbToolsBase
      * @param $w 内容值
      * @return string 组合后的内容
      */
-    protected function composite($f, $w)
+    protected function composite($f, $w, $isObj)
     {
         if (is_numeric($f)) {
             $whereString = '{' . implode(',', $this->loop($w, $this->extrinsicOperator)) . '}';
         } else {
-            $whereString = $f . ':{' . implode(',', $this->loop($w, $this->extrinsicOperator)) . '}';
+            if ($isObj) {
+                $whereString = $f . ':{' . implode(',', $this->loop($w, $this->extrinsicOperator)) . '}';
+            } else {
+                $whereString = $f . ':[' . implode(',', $this->loop($w, $this->extrinsicOperator)) . ']';
+            }
         }
         return $whereString;
     }
